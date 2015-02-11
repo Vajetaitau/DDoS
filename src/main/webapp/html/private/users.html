@@ -1,0 +1,21 @@
+<div>
+    <ul>
+        <li data-ng-click="form = 'createUser'">{{ 'CREATE_NEW_USER' | translate }}</li>
+        <li data-ng-click="form = 'listUsers'">{{ 'LIST_USERS' | translate }}</li>
+    </ul>
+</div>
+<div data-ng-show="form === 'createUser'">
+    <form>
+        <fieldset>
+            <legend></legend>
+            <label for="username">{{ 'USERNAME' | translate }}</label>
+            <input id="username" data-ng-model="user.username">
+            <label for="password">{{ 'PASSWORD' | translate }}</label>
+            <input id="password" data-ng-model="user.password">
+            <button data-ng-click="createUser()">{{ 'CREATE_USER' | translate }}</button>
+        </fieldset>
+    </form>
+</div>
+<div data-ng-show="form === 'listUsers'">
+    {{currentUser}}
+</div>

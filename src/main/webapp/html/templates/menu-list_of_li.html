@@ -1,0 +1,25 @@
+<li class="navbar-left" data-ng-if="!isAuthenticated()">
+    <a class="btn btn-default" title="{{ 'LOGIN' | translate }}" data-ng-click="open()">
+        <span class="glyphicon glyphicon-user"></span>
+        {{ 'LOGIN' | translate }}
+    </a>
+</li>
+
+<li class="navbar-right">
+    <a class="btn btn-default" title="{{ 'CHANGE_LANGUAGE' | translate }}" data-ng-click="toggleLanguage()">
+        <span class="glyphicon glyphicon-flag"></span>
+        {{ 'CHANGE LANGUAGE' | translate }}
+    </a>
+</li>
+<li class="navbar-right" data-ng-if="isAuthenticated()">
+    <form id="logoutForm" action="logout" method="POST">
+        <button class="btn btn-default" title="{{ 'LOGOUT' | translate }}" type="button" data-ng-click="logout()">
+            {{ 'LOGOUT' | translate }}
+        </button>
+        <!--<input class="btn btn-default" value="{{ 'LOGOUT' | translate }}" type="submit" />-->
+    </form><!--data-ng-click="removeAuthenticationObject()"-->
+
+</li>
+<li class="navbar-right" data-ng-if="currentUser.fullName != null">
+    <p class="navbar-text">{{currentUser.fullName}}</p>
+</li>

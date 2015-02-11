@@ -1,0 +1,32 @@
+<div class="ngdialog ngdialog-content">
+    <div class="modal-header">
+        <h2 class="modal-title">{{ 'LOG IN' | translate }}</h2>
+    </div>
+    <div class="modal-body">
+        <form novalidate="novalidate" data-ng-keyup="$event.keyCode == 13 ? login() : null">
+            <fieldset>
+                <div class="form-group" data-ng-class="{'has-warning has-feedback': !loginForm.email.length}">
+                    <label class="control-label" for="l_u">{{ 'EMAIL' | translate }}</label>
+                    <input class="form-control" id="l_u" type="text" data-ng-model="loginForm.email"
+                           required="required">
+                <span class="glyphicon glyphicon-warning-sign form-control-feedback"
+                      data-ng-show="!loginForm.email.length"></span>
+                </div>
+                <div class="form-group" data-ng-class="{'has-warning has-feedback': !loginForm.password.length}">
+                    <label class="control-label" for="l_p"><strong>{{ 'PASSWORD' | translate }}</strong></label>
+                    <input class="form-control" id="l_p" type="password" data-ng-model="loginForm.password" required>
+                <span class="glyphicon glyphicon-warning-sign form-control-feedback"
+                      data-ng-show="!loginForm.password.length"></span>
+                </div>
+            </fieldset>
+            <fieldset>
+                <button class="btn btn-default" type="button" data-dismiss="modal" data-ng-click="closeThisDialog()">
+                    {{ 'CLOSE' | translate }}
+                </button>
+                <button class="btn btn-primary" type="button" data-ng-click="login()">{{ 'LOG IN' | translate }}
+                </button>
+                <span>{{errorMessage | translate }}</span>
+            </fieldset>
+        </form>
+    </div>
+</div>

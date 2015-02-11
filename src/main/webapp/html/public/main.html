@@ -1,0 +1,50 @@
+<title>{{ 'Clipper' | translate }}</title>
+
+<div data-ng-controller="MainController">
+    <div class="clipper-login-menu">
+        <ul>
+            <li data-ng-click="open()">{{ 'Login' | translate }}</li>
+            <li>{{ 'Sign up' | translate }}</li>
+        </ul>
+    </div>
+
+    <div class="clipper-search-form">
+        <form>
+            <fieldset>
+                <legend>{{ 'Choose your destiny' | translate }}</legend>
+                <div class="label-select-pair">
+                    <label for="area">{{ 'Area' | translate }}</label>
+                    <select id="area">
+                        <option>---</option>
+                        <option>{{ 'Submission' | translate }}</option>
+                        <option>{{ 'Stand up' | translate }}</option>
+                    </select>
+                </div>
+                <div class="label-select-pair">
+                    <label for="type">{{ 'Type of move' | translate }}</label>
+                    <select id="type">
+                        <option>---</option>
+                        <option>{{ 'Triangle' | translate }}</option>
+                        <option>{{ 'Arm bar' | translate }}</option>
+                    </select>
+                </div>
+                <div class="label-select-pair">
+                    <label for="level">{{ 'Level' | translate }}</label>
+                    <select id="level">
+                        <option>---</option>
+                        <option>{{ 'Eww' | translate }}</option>
+                        <option>{{ 'Superb' | translate }}</option>
+                    </select>
+                </div>
+                <div class="label-select-pair">
+                    <label for="number">{{ 'Number' | translate }}</label>
+                    <select id="number">
+                        <option>1</option>
+                        <option>2</option>
+                    </select>
+                </div>
+            </fieldset>
+            <button type="button">{{ 'Search' | translate }}</button>
+        </form>
+    </div>
+</div>

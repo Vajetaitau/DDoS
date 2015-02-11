@@ -1,0 +1,29 @@
+<div data-ng-controller="MainController">
+    <div class="clipper-admin-top-menu">
+        <ul>
+            <li data-ng-click="openUsers()">{{ 'Users' | translate }}</li>
+            <li data-ng-click="openFiles()">{{ 'Files' | translate }}</li>
+        </ul>
+        <ul>
+            <li class="navbar-right">
+                <a class="btn btn-default" title="{{ 'CHANGE_LANGUAGE' | translate }}" data-ng-click="toggleLanguage()">
+                    <span class="glyphicon glyphicon-flag"></span>
+                    {{ 'CHANGE LANGUAGE' | translate }}
+                </a>
+            </li>
+            <li class="navbar-right">
+                <form id="logoutForm" action="logout" method="POST">
+                    <button class="btn btn-default" title="{{ 'LOGOUT' | translate }}" type="button"
+                            data-ng-click="logout()">
+                        {{ 'LOGOUT' | translate }}
+                    </button>
+                    <!--<input class="btn btn-default" value="{{ 'LOGOUT' | translate }}" type="submit" />-->
+                </form>
+                <!--data-ng-click="removeAuthenticationObject()"-->
+
+            </li>
+        </ul>
+    </div>
+</div>
+<span>MAIN SHIT</span>
+<div data-ui-view></div>
