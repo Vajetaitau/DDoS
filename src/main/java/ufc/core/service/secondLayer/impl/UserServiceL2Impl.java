@@ -1,4 +1,4 @@
-package ufc.core.service.secondLayer.inpl;
+package ufc.core.service.secondLayer.impl;
 
 import ufc.core.service.secondLayer.AuthorityServiceL2;
 import ufc.core.service.secondLayer.UserServiceL2;
