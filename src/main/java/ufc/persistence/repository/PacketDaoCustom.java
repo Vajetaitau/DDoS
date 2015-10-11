@@ -1,7 +1,11 @@
 package ufc.persistence.repository;
 
-/**
- * Created by K on 10/10/2015.
- */
+import ufc.dto.ddos.GroupedSourceIpsDetails;
+
+import java.util.List;
+
 public interface PacketDaoCustom {
+
+    public List<GroupedSourceIpsDetails> findGroupedSourceIps(Integer threshold, Integer limit, String order);
+
 }

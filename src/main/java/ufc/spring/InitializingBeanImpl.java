@@ -21,7 +21,7 @@ public class InitializingBeanImpl implements InitializingBean {
     @Override
     @Transactional(readOnly = false)
     public void afterPropertiesSet() throws GeneralException {
-        PrivateUserDetails admin = userServiceL2.create("admin", "admin", "ADMIN", "USER");
+//        PrivateUserDetails admin = userServiceL2.create("admin", "admin", "ADMIN", "USER");
     }
 
 }

@@ -1,10 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title></title>
-</head>
-<body>
+<title>{{ 'DDOS' | translate }}</title>
 
-</body>
-</html>
+<div>
+    <form>
+
+        <button data-ng-click="getLine()" type="button">{{ 'Get line' | translate }}</button>
+        <button data-ng-click="uploadFile()" type="button">{{ 'Upload File' | translate }}</button>
+        <!--<button data-ng-click="getGroupedSourceIps()" type="button">{{ 'Get grouped source ips' | translate }}</button>-->
+
+        <div class="chart-size-medium">
+            <div class="additionalChartInput">
+                <label for="threshold">{{ 'Threshold' }}</label>
+                <input id="threshold" type="text" data-ng-model="threshold">
+            </div>
+            <div class="additionalChartInput">
+                <label for="amountToReturn">{{ 'Amount to return' }}</label>
+                <input id="amountToReturn" type="text" data-ng-model="amountToReturn">
+            </div>
+            <canvas id="bar" class="chart chart-bar"
+                    chart-data="first_data" chart-labels="first_labels">
+            </canvas>
+        </div>
+        <div class="chart-size-medium">
+            <canvas id="line" class="chart chart-line" data-chart-data="data"
+                    data-chart-labels="labels" data-chart-legend="true" data-chart-series="series"
+                    data-chart-click="onClick" >
+            </canvas>
+        </div>
+        <div class="chart-size-medium">
+            <canvas id="line" class="chart chart-line" data-chart-data="data"
+                    data-chart-labels="labels" data-chart-legend="true" data-chart-series="series"
+                    data-chart-click="onClick" >
+            </canvas>
+        </div>
+    </form>
+</div>

@@ -1,2 +1,22 @@
-div.clipper-login-menu {
+.chart-size-medium {
+	padding: 50px;
+    width: 50%;
+    height: 33%;
+    margin: 0 auto;
+}
+
+.additionalChartInput {
+	display: inline-block;
+	padding: 0 20px 0 0;
+}
+.additionalChartInput input[type="text"] {
+	width: 40px;
+	padding: 5px 5px 5px 5px;
+	border: none;
+	border-bottom: solid 2px #c9c9c9;
+	transition: border 0.3s;
+}
+.additionalChartInput input[type="text"]:focus,
+.additionalChartInput input[type="text"].focus {
+  border-bottom: solid 2px #969696;
 }

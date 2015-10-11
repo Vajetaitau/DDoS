@@ -6,7 +6,8 @@
         'pascalprecht.translate',
 //        'http-auth-interceptor',
         'ui.router',
-        'ngDialog'/* https://github.com/likeastore/ngDialog */
+        'ngDialog',/* https://github.com/likeastore/ngDialog */
+        'chart.js'
     ]);
 
     cv.config(['$httpProvider', 'ngDialogProvider',

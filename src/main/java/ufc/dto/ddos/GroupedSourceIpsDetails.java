@@ -2,7 +2,15 @@ package ufc.dto.ddos;
 
 public class GroupedSourceIpsDetails {
     private String ip;
-    private Integer count;
+    private long count;
+
+    public GroupedSourceIpsDetails() {
+    }
+
+    public GroupedSourceIpsDetails(String ip, long count) {
+        this.ip = ip;
+        this.count = count;
+    }
 
     public String getIp() {
         return ip;
@@ -12,11 +20,11 @@ public class GroupedSourceIpsDetails {
         this.ip = ip;
     }
 
-    public Integer getCount() {
+    public long getCount() {
         return count;
     }
 
-    public void setCount(Integer count) {
+    public void setCount(long count) {
         this.count = count;
     }
 }

@@ -1,7 +1,14 @@
 package ufc.rest.response.ddos;
 
-/**
- * Created by K on 10/8/2015.
- */
 public class DDOSGetLineResponse {
+
+    String line;
+
+    public String getLine() {
+        return line;
+    }
+
+    public void setLine(String line) {
+        this.line = line;
+    }
 }

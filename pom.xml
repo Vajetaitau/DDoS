@@ -139,7 +139,7 @@
                 <artifactId>tomcat7-maven-plugin</artifactId>
                 <version>2.2</version>
                 <configuration>
-                    <path>/ufc</path>
+                    <path>/karolis-tarasaitis</path>
                     <contextReloadable>true</contextReloadable>
                     <systemProperties>
                     </systemProperties>
