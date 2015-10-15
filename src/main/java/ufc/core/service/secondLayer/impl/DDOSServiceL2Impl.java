@@ -4,9 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ufc.core.exceptions.GeneralException;
 import ufc.core.service.secondLayer.DDOSServiceL2;
-import ufc.dto.ddos.GroupedSourceIpsDetails;
+import ufc.dto.ddos.GroupedIpDetails;
+import ufc.dto.ddos.PacketCountInTimeInterval;
+import ufc.dto.ddos.PacketInfo;
 import ufc.persistence.entity.Packet;
 import ufc.persistence.repository.PacketDao;
+import ufc.rest.request.PacketCountInTimeIntervalsRequest;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -36,8 +39,23 @@ public class DDOSServiceL2Impl implements DDOSServiceL2 {
     }
 
     @Override
-    public List<GroupedSourceIpsDetails> getGroupedSourceIpDetails(Integer threshold, Integer limit, String order) throws GeneralException {
+    public List<GroupedIpDetails> getGroupedSourceIpDetails(Integer threshold, Integer limit, String order) throws GeneralException {
         return packetDao.findGroupedSourceIps(threshold, limit, order);
+    }
+
+    @Override
+    public List<GroupedIpDetails> getGroupedDestinationIpDetails(Integer threshold, Integer limit, String order) throws GeneralException {
+        return packetDao.findGroupedDestinationIps(threshold, limit, order);
+    }
+
+    @Override
+    public List<PacketCountInTimeInterval> getPacketCountInTimeIntervals(Long multiplier, Long dividor, String sourceIp, Integer firstResult, Integer maxResults) throws GeneralException {
+        return packetDao.findPacketCountInTimeIntervals(multiplier, dividor, sourceIp, firstResult, maxResults);
+    }
+
+    @Override
+    public List<PacketCountInTimeInterval> findPacketCounts(Integer start, Integer end, Integer increment, List<PacketInfo> packetInfoList) throws GeneralException {
+        return packetDao.findPacketCounts(start, end, increment, packetInfoList);
     }
 
     private Packet getPacket(String line) {

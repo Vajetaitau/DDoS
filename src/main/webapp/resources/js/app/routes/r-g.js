@@ -21,10 +21,20 @@
 				'controller': 'DDOSController',
 				'resolve': {
 					sourceList: ['ddosService', function(ddosService) {
-						return ddosService.getGroupedSourceIps(2000, 50, 'desc').then(function (response) {
+						var defaults = ddosService.defaults;
+						return ddosService.getGroupedSourceIps(defaults.threshold, defaults.amountToReturn, defaults.source).then(function (response) {
 							var sourceList = response.data.list;
 							return sourceList;
 						})
+					}],
+					packetCounts: ['ddosService', function(ddosService) {
+						var defaults = ddosService.defaults;
+						var seriesA = {ip: defaults.seriesAIp, isSource: defaults.seriesASource};
+						var seriesB = {ip: defaults.seriesBIp, isSource: defaults.seriesBSource};
+						return ddosService.getPacketCount(defaults.timeFrom, defaults.timeTo, defaults.increment, [seriesA, seriesB]).then(function (response) {
+							var packetCountsResponse = response.data.list;
+							return packetCountsResponse;
+						});
 					}]
 				}
 			})

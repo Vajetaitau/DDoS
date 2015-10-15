@@ -5,12 +5,17 @@
     margin: 0 auto;
 }
 
+.short-input {
+	width: 40px;
+}
+.long-input {
+	width: 120px;
+}
 .additionalChartInput {
 	display: inline-block;
 	padding: 0 20px 0 0;
 }
 .additionalChartInput input[type="text"] {
-	width: 40px;
 	padding: 5px 5px 5px 5px;
 	border: none;
 	border-bottom: solid 2px #c9c9c9;

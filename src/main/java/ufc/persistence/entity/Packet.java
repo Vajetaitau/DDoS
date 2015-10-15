@@ -8,11 +8,18 @@ import java.sql.Timestamp;
 @NamedQueries({
         @NamedQuery(name = NamedQueryNames.GET_GROUPED_SOURCE_IPS
                 , query = "" +
-                "select new ufc.dto.ddos.GroupedSourceIpsDetails(source, count(source)) " +
+                "select new ufc.dto.ddos.GroupedIpDetails(source, count(source)) " +
                 "from Packet " +
                 "group by source " +
                 "having count(source) > :threshold " +
-                "order by count(source) desc")
+                "order by count(source) desc"),
+        @NamedQuery(name = NamedQueryNames.GET_GROUPED_DESTINATION_IPS
+                , query = "" +
+                "select new ufc.dto.ddos.GroupedIpDetails(destination, count(destination)) " +
+                "from Packet " +
+                "group by destination " +
+                "having count(destination) > :threshold " +
+                "order by count(destination) desc")
 })
 
 @Entity
