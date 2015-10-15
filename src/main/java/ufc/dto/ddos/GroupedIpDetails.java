@@ -1,13 +1,13 @@
 package ufc.dto.ddos;
 
-public class GroupedSourceIpsDetails {
+public class GroupedIpDetails {
     private String ip;
     private long count;
 
-    public GroupedSourceIpsDetails() {
+    public GroupedIpDetails() {
     }
 
-    public GroupedSourceIpsDetails(String ip, long count) {
+    public GroupedIpDetails(String ip, long count) {
         this.ip = ip;
         this.count = count;
     }
