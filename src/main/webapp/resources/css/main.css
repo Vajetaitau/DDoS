@@ -11,6 +11,9 @@
 .long-input {
 	width: 120px;
 }
+.super-long-input {
+	width: 200px;
+}
 .additionalChartInput {
 	display: inline-block;
 	padding: 0 20px 0 0;

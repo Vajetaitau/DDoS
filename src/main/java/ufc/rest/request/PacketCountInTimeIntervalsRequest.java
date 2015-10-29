@@ -2,6 +2,7 @@ package ufc.rest.request;
 
 import ufc.dto.ddos.PacketInfo;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 /**
@@ -10,17 +11,10 @@ import java.util.List;
 public class PacketCountInTimeIntervalsRequest {
 
     private List<PacketInfo> list;
-    private Integer start;
-    private Integer end;
+    private Timestamp start;
+    private Timestamp end;
     private Integer increment;
 
-    public Integer getEnd() {
-        return end;
-    }
-
-    public void setEnd(Integer end) {
-        this.end = end;
-    }
 
     public Integer getIncrement() {
         return increment;
@@ -30,11 +24,19 @@ public class PacketCountInTimeIntervalsRequest {
         this.increment = increment;
     }
 
-    public Integer getStart() {
+    public Timestamp getEnd() {
+        return end;
+    }
+
+    public void setEnd(Timestamp end) {
+        this.end = end;
+    }
+
+    public Timestamp getStart() {
         return start;
     }
 
-    public void setStart(Integer start) {
+    public void setStart(Timestamp start) {
         this.start = start;
     }
 

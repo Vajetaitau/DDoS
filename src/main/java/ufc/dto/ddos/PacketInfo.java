@@ -5,22 +5,31 @@ package ufc.dto.ddos;
  */
 public class PacketInfo {
 
-    private String ip;
-    private Boolean isSource;
+    private String source;
+    private String destination;
+    private boolean returnSource;
 
-    public String getIp() {
-        return ip;
+    public boolean isReturnSource() {
+        return returnSource;
     }
 
-    public void setIp(String ip) {
-        this.ip = ip;
+    public void setReturnSource(boolean returnSource) {
+        this.returnSource = returnSource;
     }
 
-    public Boolean getIsSource() {
-        return isSource;
+    public String getSource() {
+        return source;
     }
 
-    public void setIsSource(Boolean isSource) {
-        this.isSource = isSource;
+    public void setSource(String source) {
+        this.source = source;
+    }
+
+    public String getDestination() {
+        return destination;
+    }
+
+    public void setDestination(String destination) {
+        this.destination = destination;
     }
 }

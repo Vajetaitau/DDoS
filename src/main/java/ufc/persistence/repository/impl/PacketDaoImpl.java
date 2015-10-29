@@ -11,6 +11,7 @@ import ufc.rest.request.PacketCountInTimeIntervalsRequest;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import java.math.BigInteger;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,43 +54,49 @@ public class PacketDaoImpl implements PacketDaoCustom {
     }
 
     @Override
-    public List<PacketCountInTimeInterval> findPacketCounts(Integer start, Integer end, Integer increment,
+    public List<PacketCountInTimeInterval> findPacketCounts(Timestamp start, Timestamp end, Integer increment,
                                                             List<PacketInfo> packetInfoList) {
 
         String[] seriesLetters = {"a", "b", "c", "d", "e", "f", "g", "h", "i"};
 
         StringBuilder query = new StringBuilder();
-        query.append("with intervals as ( ");
-        query.append("select s as start, s + ").append(increment).append(" as end ");
-        query.append("from generate_series(").append(start).append(", ").append(end).append(", ").append(increment).append(") as s ");
-        query.append(") ");
+        int multiplier = increment;
+        int dividor = 60 / increment;
 
-        query.append("select i.start, pp.ip, pp.series, count(pp.ip) ");
+        query.append("select pp.hour_timestamp + cast(concat(pp.min15_timestamp * ").append(multiplier).append(", 'minutes') as interval) as t");
+        query.append(", pp.series, count(pp.ip), pp.fileName ");
         query.append("from (");
         for (int i = 0; i < packetInfoList.size(); i++) {
-            String column = packetInfoList.get(i).getIsSource() ? "source" : "destination";
+            String column = packetInfoList.get(i).isReturnSource() ? "source" : "destination";
 
-            query.append("select p.timestamp as timestamp, p.").append(column).append(" as ip, cast('").append(seriesLetters[i]).append("' as text) as series ");
+            query.append("select date_trunc('hour', p.timestamp) AS hour_timestamp");
+            query.append(", cast((extract(minute FROM p.timestamp)) as int) / ").append(multiplier).append(" AS min15_timestamp");
+            query.append(", p.fileName as fileName, p.").append(column).append(" as ip, cast('").append(seriesLetters[i]).append("' as text) as series ");
             query.append("from packets as p ");
-            query.append("where p.").append(column).append(" like :ip").append(i).append(" ");
+            query.append("where p.source like :source").append(i).append(" ");
+            query.append("and p.destination like :destination").append(i).append(" ");
+            query.append("and p.timestamp >= '").append(start).append("'");
+            query.append("and p.timestamp <= '").append(end).append("'");
             if (i != packetInfoList.size() - 1) {
                 query.append("union all ");
             }
         }
         query.append(") as pp ");
-        query.append("right join intervals as i on pp.timestamp >= i.start and pp.timestamp < i.end ");
-        query.append("group by i.start, pp.ip, pp.series ");
-        query.append("order by i.start asc");
+        query.append("group by t, pp.series, pp.fileName ");
+        query.append("order by t asc");
 
         Query nativeQuery = entityManager.createNativeQuery(query.toString());
         for (int i = 0; i < packetInfoList.size(); i++) {
-            nativeQuery.setParameter("ip" + i, packetInfoList.get(i).getIp());
+            nativeQuery.setParameter("source" + i, packetInfoList.get(i).getSource().replace("*", "%"));
+            nativeQuery.setParameter("destination" + i, packetInfoList.get(i).getDestination().replace("*", "%"));
         }
 
         List<PacketCountInTimeInterval> list = new ArrayList<PacketCountInTimeInterval>();
         for (Object r : nativeQuery.getResultList()) {
             Object[] resultRow = (Object[]) r;
-            PacketCountInTimeInterval p = new PacketCountInTimeInterval((Integer) resultRow[0], (String) resultRow[1], ((BigInteger) resultRow[3]).longValue(), (String) resultRow[2]);
+            Timestamp timestamp = (Timestamp) resultRow[0];
+            PacketCountInTimeInterval p = new PacketCountInTimeInterval(timestamp, "", ((BigInteger) resultRow[2]).longValue(), (String) resultRow[1]);
+            p.setFile((String) resultRow[3]);
             list.add(p);
         }
         return list;

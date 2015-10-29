@@ -3,18 +3,18 @@
 <div>
     <form>
 
-        <!--<button data-ng-click="getLine()" type="button">{{ 'Get line' | translate }}</button>
-        <button data-ng-click="uploadFile()" type="button">{{ 'Upload File' | translate }}</button>-->
+        <!--<button data-ng-click="getLine()" type="button">{{ 'Get line' | translate }}</button>-->
+        <button data-ng-click="uploadFile()" type="button">{{ 'Upload File' | translate }}</button>
         <!--<button data-ng-click="getGroupedSourceIps()" type="button">{{ 'Get grouped source ips' | translate }}</button>-->
 
         <div class="chart-size-medium">
             <div class="additionalChartInput">
                 <label for="threshold">{{ 'THRESHOLD' | translate }}</label>
-                <input id="threshold" type="text" data-ng-model="threshold" class="short-input">
+                <input id="threshold" type="text" data-ng-model="threshold" class="super-long-input">
             </div>
             <div class="additionalChartInput">
                 <label for="amountToReturn">{{ 'Amount to return' | translate }}</label>
-                <input id="amountToReturn" type="text" data-ng-model="amountToReturn" class="short-input">
+                <input id="amountToReturn" type="text" data-ng-model="amountToReturn" class="super-long-input">
             </div>
             <div class="additionalChartInput">
                 <label for="amountToReturn">{{ 'Source' | translate }}</label>
@@ -28,11 +28,11 @@
         <div class="chart-size-medium">
             <div class="additionalChartInput">
                 <label for="timeFrom">{{ 'timeFrom' | translate }}</label>
-                <input id="timeFrom" type="text" data-ng-model="timeFrom" class="short-input">
+                <input id="timeFrom" type="text" data-ng-model="timeFrom" class="super-long-input">
             </div>
             <div class="additionalChartInput">
                 <label for="timeTo">{{ 'timeTo' | translate }}</label>
-                <input id="timeTo" type="text" data-ng-model="timeTo" class="short-input">
+                <input id="timeTo" type="text" data-ng-model="timeTo" class="super-long-input">
             </div>
             <div class="additionalChartInput">
                 <label for="increment">{{ 'increment' }}</label>
@@ -40,24 +40,24 @@
             </div>
             <div>
                 <div class="additionalChartInput">
-                    <label for="seriesAIp">{{ 'seriesAIp' | translate }}</label>
-                    <input id="seriesAIp" type="text" data-ng-model="seriesAIp" class="long-input">
+                    <label for="seriesAIpSource">{{ 'seriesAIpSource' | translate }}</label>
+                    <input id="seriesAIpSource" type="text" data-ng-model="seriesAIpSource" class="long-input">
                 </div>
                 <div class="additionalChartInput">
-                    <label for="seriesASource">{{ 'seriesASource' | translate }}</label>
-                    <input id="seriesASource" type="checkbox" data-ng-model="seriesASource" class="short-input">
+                    <label for="seriesAIpDestination">{{ 'seriesAIpDestination' | translate }}</label>
+                    <input id="seriesAIpDestination" type="text" data-ng-model="seriesAIpDestination" class="long-input">
                 </div>
             </div>
-            <div>
+          <!--  <div>
                 <div class="additionalChartInput">
-                    <label for="seriesBIp">{{ 'seriesBIp' | translate }}</label>
-                    <input id="seriesBIp" type="text" data-ng-model="seriesBIp" class="long-input">
+                    <label for="seriesBIpSource">{{ 'seriesBIpSource' | translate }}</label>
+                    <input id="seriesBIpSource" type="text" data-ng-model="seriesBIpSource" class="long-input">
                 </div>
                 <div class="additionalChartInput">
-                    <label for="seriesBSource">{{ 'seriesBSource' | translate }}</label>
-                    <input id="seriesBSource" type="checkbox" data-ng-model="seriesBSource" class="short-input">
+                    <label for="seriesBDestination">{{ 'seriesBIpDestination' | translate }}</label>
+                    <input id="seriesBDestination" type="text" data-ng-model="seriesBIpDestination" class="long-input">
                 </div>
-            </div>
+            </div>-->
             <canvas id="line" class="chart chart-line" data-chart-data="second_data"
                     data-chart-labels="second_labels" data-chart-legend="true" data-chart-series="series"
                     data-chart-click="onClick">

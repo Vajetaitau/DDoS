@@ -1,19 +1,30 @@
 package ufc.dto.ddos;
 
+import java.sql.Timestamp;
+
 /**
  * Created by K on 10/11/2015.
  */
 public class PacketCountInTimeInterval {
 
-    private long time;
+    private Timestamp time;
     private String ipAddress;
     private long count;
     private String series;
+    private String file;
+
+    public String getFile() {
+        return file;
+    }
+
+    public void setFile(String file) {
+        this.file = file;
+    }
 
     public PacketCountInTimeInterval() {
     }
 
-    public PacketCountInTimeInterval(long time, String ipAddress, long count, String series) {
+    public PacketCountInTimeInterval(Timestamp time, String ipAddress, long count, String series) {
         this.time = time;
         this.ipAddress = ipAddress;
         this.count = count;
@@ -28,11 +39,11 @@ public class PacketCountInTimeInterval {
         this.series = series;
     }
 
-    public long getTime() {
+    public Timestamp getTime() {
         return time;
     }
 
-    public void setTime(long time) {
+    public void setTime(Timestamp time) {
         this.time = time;
     }
 

@@ -30,7 +30,7 @@ public class Packet extends Item {
     Integer number;
 
     @Column
-    double timestamp;
+    Timestamp timestamp;
 
     @Column
     String source;
@@ -44,8 +44,19 @@ public class Packet extends Item {
     @Column
     Integer length;
 
-    @Column(length = 2048)
+    @Column(length = 1024 * 16)
     String info;
+
+    @Column
+    String fileName;
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
 
     public Integer getNumber() {
         return number;
@@ -55,11 +66,11 @@ public class Packet extends Item {
         this.number = number;
     }
 
-    public double getTimestamp() {
+    public Timestamp getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(double timestamp) {
+    public void setTimestamp(Timestamp timestamp) {
         this.timestamp = timestamp;
     }
 

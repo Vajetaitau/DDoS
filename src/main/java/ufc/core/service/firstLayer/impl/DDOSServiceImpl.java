@@ -13,6 +13,7 @@ import ufc.rest.request.PacketCountInTimeIntervalsRequest;
 import javax.transaction.Transactional;
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.sql.Timestamp;
 import java.util.List;
 
 /**
@@ -65,7 +66,7 @@ public class DDOSServiceImpl implements DDOSService {
     }
 
     @Override
-    public List<PacketCountInTimeInterval> findPacketCounts(Integer start, Integer end, Integer increment, List<PacketInfo> packetInfoList) throws GeneralException {
+    public List<PacketCountInTimeInterval> findPacketCounts(Timestamp start, Timestamp end, Integer increment, List<PacketInfo> packetInfoList) throws GeneralException {
         return ddosServiceL2.findPacketCounts(start, end, increment, packetInfoList);
     }
 
