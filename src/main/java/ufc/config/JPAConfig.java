@@ -45,6 +45,7 @@ public class JPAConfig {
         dataSource.setUrl(jdbcUrl);
         dataSource.setUsername(username);
         dataSource.setPassword(password);
+
         return dataSource;
     }
 
@@ -78,6 +79,9 @@ public class JPAConfig {
         jpaProperties.put("hibernate.hbm2ddl.auto", hibenrateHbm2ddlAuto);
         jpaProperties.put("hibernate.show.sql", hibernateShowSql);
         jpaProperties.put("hibernate.hbm2ddl.import_files", hibenrateHbm2ddlImportFiles);
+        jpaProperties.put("hibernate.cache.use_second_level_cache", true);
+        jpaProperties.put("hibernate.cache.use_query_cache", true);
+        jpaProperties.put("hibernate.cache.region.factory_class", "org.hibernate.cache.ehcache.EhCacheRegionFactory");
         return jpaProperties;
     }
 

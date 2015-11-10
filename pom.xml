@@ -44,6 +44,7 @@
         <spring-security>3.2.3.RELEASE</spring-security>
         <spring-messaging>4.0.8.RELEASE</spring-messaging>
         <spring-boot-websocket-starter>1.0.2.RELEASE</spring-boot-websocket-starter>
+        <hibernate>4.3.5.Final</hibernate>
     </properties>
     <profiles>
         <profile>
@@ -245,26 +246,19 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
-            <version>4.3.5.Final</version>
+            <version>${hibernate}</version>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-entitymanager</artifactId>
-            <version>4.3.5.Final</version>
-        </dependency>
-        <!-- JSON mappers -->
-        <!-- 		<dependency>
-                <groupId>org.codehaus.jackson</groupId>
-                <artifactId>jackson-core-asl</artifactId>
-                <version>1.9.12</version>
-                <scope>compile</scope>
+            <version>${hibernate}</version>
         </dependency>
         <dependency>
-                <groupId>org.codehaus.jackson</groupId>
-                <artifactId>jackson-mapper-asl</artifactId>
-                <version>1.9.12</version>
-                <scope>compile</scope>
-        </dependency> -->
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-ehcache</artifactId>
+            <version>${hibernate}</version>
+        </dependency>
+        <!-- JSON mappers -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
@@ -303,6 +297,17 @@
             <groupId>jnetpcap</groupId>
             <artifactId>jnetpcap</artifactId>
             <version>1</version>
+        </dependency>
+        <dependency>
+            <groupId>cglib</groupId>
+            <artifactId>cglib</artifactId>
+            <version>2.2.2</version>
+        </dependency>
+        <!-- JsonArray, JsonObject, Json-->
+        <dependency>
+            <groupId>org.glassfish</groupId>
+            <artifactId>javax.json</artifactId>
+            <version>1.0.4</version>
         </dependency>
     </dependencies>
 </project>

@@ -6,6 +6,7 @@
         function ($scope, $state, ddosService, sourceList, packetCounts) {
             $scope.getLine = getLine;
             $scope.uploadFile = uploadFile;
+            $scope.parseAttackFile = parseAttackFile;
 
             var ipAddresses = [];
             var ipAdressCounts = [];
@@ -22,11 +23,21 @@
 			$scope.increment = ddosService.defaults.increment;
 			$scope.seriesAIpSource = ddosService.defaults.seriesAIpSource;
 			$scope.seriesAIpDestination = ddosService.defaults.seriesAIpDestination;
-			$scope.seriesBIpSource = ddosService.defaults.seriesBIpSource;
-			$scope.seriesBIpDestination = ddosService.defaults.seriesBIpDestination;
-            $scope.second_labels = [];
-            $scope.second_data = [[]];
+			var time = [];
+			var seriesA = [];
+			var seriesB = [];
+            $scope.second_labels = time;
+            $scope.second_data = [seriesA, seriesB];
             $scope.series = ['Series A', 'Series B'];
+
+            $scope.ddosAttackList = ddosService.defaults.attackList;
+            $scope.attackSelected = function(attack) {
+            	$scope.timeFrom = attack.timeFrom;
+            	$scope.timeTo = attack.timeTo;
+				$scope.increment = attack.increment;
+				$scope.seriesAIpSource = attack.source;
+				$scope.seriesAIpDestination = attack.destination;
+            }
 
 			getGroupedSourceIps();
 			getPacketCounts();
@@ -41,6 +52,12 @@
                 ddosService.uploadFile().then(function (response) {
                     console.log('finished');
                 });
+            }
+
+            function parseAttackFile() {
+            	ddosService.parseAttackFile().then(function (response) {
+            		console.log('parsed!');
+            	});
             }
 
             function getGroupedSourceIps() {
@@ -60,11 +77,9 @@
 			}
 
 			function getPacketCounts() {
-				$scope.second_labels = [];
-				$scope.second_data = [[]];
-				var time = [];
-				var seriesA = [];
-				var seriesB = [];
+				time.length = 0;
+				seriesA.length = 0;
+				seriesB.length = 0;
 				for (var i in $scope.packetCounts) {
 					var pc = $scope.packetCounts[i];
 					var date = new Date(pc.time).customFormat('#YYYY#/#MM#/#DD# #hh#:#mm#:#ss#');
@@ -81,13 +96,13 @@
 						seriesB[time.length - 1] = pc.count;
 					}
 				}
-				$scope.second_labels = time;
-				$scope.second_data = [seriesA, seriesB];
+				_.defer(function(){$scope.$apply();});
+				console.log($scope.second_labels);
 			}
 
 			function recalculatePacketCount() {
-				var timeFrom = Math.round(new Date($scope.timeFrom).getTime() / 1000);
-				var timeTo = Math.round(new Date($scope.timeTo).getTime() / 1000);
+				var timeFrom = new Date($scope.timeFrom);
+				var timeTo = new Date($scope.timeTo);
 				var seriesA = {source: $scope.seriesAIpSource, destination: $scope.seriesAIpDestination, returnSource: true};
 				ddosService.getPacketCount(timeFrom, timeTo, $scope.increment, [seriesA]).then(function (response) {
 					$scope.packetCounts = response.data.list;
@@ -143,18 +158,6 @@
 			});
 
 			$scope.$watch('seriesAIpDestination', function(oldValue, newValue) {
-				if (!_.isEqual(oldValue, newValue)) {
-					recalculatePacketCount();
-				}
-			});
-
-			$scope.$watch('seriesBIpSource', function(oldValue, newValue) {
-				if (!_.isEqual(oldValue, newValue)) {
-					recalculatePacketCount();
-				}
-			});
-
-			$scope.$watch('seriesBIpDestination', function(oldValue, newValue) {
 				if (!_.isEqual(oldValue, newValue)) {
 					recalculatePacketCount();
 				}

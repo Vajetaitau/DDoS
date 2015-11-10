@@ -70,4 +70,8 @@ public class DDOSServiceImpl implements DDOSService {
         return ddosServiceL2.findPacketCounts(start, end, increment, packetInfoList);
     }
 
+    @Override
+    public void parseAttackFile() throws GeneralException {
+        ddosServiceL2.parseAttackFile();
+    }
 }

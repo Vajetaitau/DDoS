@@ -4,7 +4,8 @@
     <form>
 
         <!--<button data-ng-click="getLine()" type="button">{{ 'Get line' | translate }}</button>-->
-        <button data-ng-click="uploadFile()" type="button">{{ 'Upload File' | translate }}</button>
+        <!--<button data-ng-click="uploadFile()" type="button">{{ 'Upload File' | translate }}</button>-->
+        <button data-ng-click="parseAttackFile()" type="button">{{ 'Parse Attack File' | translate }}</button>
         <!--<button data-ng-click="getGroupedSourceIps()" type="button">{{ 'Get grouped source ips' | translate }}</button>-->
 
         <div class="chart-size-medium">
@@ -25,6 +26,19 @@
             </canvas>
         </div>
 
+        <div class="ddosAttackList">
+            <ul>
+                <li data-ng-repeat="attack in ddosAttackList">
+                    <div data-ng-click="attackSelected(attack)">
+                        <span>{{attack.source}}</span>
+                        <span>{{attack.destination}}</span>
+                        <span>{{attack.increment}}</span>
+                        <span>{{attack.timeFrom}}</span>
+                        <span>{{attack.timeTo}}</span>
+                    </div>
+                </li>
+            </ul>
+        </div>
         <div class="chart-size-medium">
             <div class="additionalChartInput">
                 <label for="timeFrom">{{ 'timeFrom' | translate }}</label>
@@ -48,28 +62,10 @@
                     <input id="seriesAIpDestination" type="text" data-ng-model="seriesAIpDestination" class="long-input">
                 </div>
             </div>
-          <!--  <div>
-                <div class="additionalChartInput">
-                    <label for="seriesBIpSource">{{ 'seriesBIpSource' | translate }}</label>
-                    <input id="seriesBIpSource" type="text" data-ng-model="seriesBIpSource" class="long-input">
-                </div>
-                <div class="additionalChartInput">
-                    <label for="seriesBDestination">{{ 'seriesBIpDestination' | translate }}</label>
-                    <input id="seriesBDestination" type="text" data-ng-model="seriesBIpDestination" class="long-input">
-                </div>
-            </div>-->
             <canvas id="line" class="chart chart-line" data-chart-data="second_data"
                     data-chart-labels="second_labels" data-chart-legend="true" data-chart-series="series"
                     data-chart-click="onClick">
             </canvas>
         </div>
-
-
-        <!-- <div class="chart-size-medium">
-             <canvas id="line" class="chart chart-line" data-chart-data="data"
-                     data-chart-labels="labels" data-chart-legend="true" data-chart-series="series"
-                     data-chart-click="onClick" >
-             </canvas>
-         </div>-->
     </form>
 </div>

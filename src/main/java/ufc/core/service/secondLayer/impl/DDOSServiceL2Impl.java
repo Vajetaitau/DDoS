@@ -1,5 +1,6 @@
 package ufc.core.service.secondLayer.impl;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.jnetpcap.Pcap;
 import org.jnetpcap.PcapIf;
 import org.jnetpcap.packet.PcapPacket;
@@ -10,6 +11,7 @@ import org.springframework.format.datetime.DateFormatter;
 import org.springframework.stereotype.Service;
 import ufc.core.exceptions.GeneralException;
 import ufc.core.service.secondLayer.DDOSServiceL2;
+import ufc.core.service.secondLayer.modifiers.AttackLine;
 import ufc.dto.ddos.GroupedIpDetails;
 import ufc.dto.ddos.PacketCountInTimeInterval;
 import ufc.dto.ddos.PacketInfo;
@@ -18,8 +20,13 @@ import ufc.persistence.repository.PacketDao;
 import ufc.rest.request.PacketCountInTimeIntervalsRequest;
 import ufc.utils.FileUploader;
 
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.PrintWriter;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -32,8 +39,8 @@ import java.util.List;
 @Service("ddosServiceL2")
 public class DDOSServiceL2Impl implements DDOSServiceL2 {
 
-    private static final String pathToFile1 = "C:\\Users\\K\\Desktop\\TrainingData\\w2\\1d-inside.csv";
-    private static final String pathToFile2 = "C:\\Users\\K\\Desktop\\TrainingData\\w2\\1d-outside.csv";
+    private static final String pathToFile1 = "C:\\Users\\K\\Desktop\\TrainingData\\w5\\1d-inside.csv";
+    private static final String pathToFile2 = "C:\\Users\\K\\Desktop\\TrainingData\\w5\\1d-outside.csv";
 
     @Autowired private PacketDao packetDao;
     @Autowired private FileUploader fileUploader;
@@ -107,5 +114,60 @@ public class DDOSServiceL2Impl implements DDOSServiceL2 {
 
         return packet;
     }
+
+    @Override
+    public void parseAttackFile() throws GeneralException {
+        final String attackFilePath = "C:\\Users\\K\\Desktop\\TrainingData\\w5-attack-truth.txt";
+        final String parsedOutput = "C:\\Users\\K\\Desktop\\TrainingData\\w5-attack-truth-parsed.txt";
+        try {
+            JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
+            BufferedReader br = new BufferedReader(new FileReader(attackFilePath));
+            String line;
+            while ((line = br.readLine()) != null) {
+                String id = null;
+                if (isSummarizedAttackLine(line)) {
+                    id = getIdFromSummarizedAttackLine(line);
+                    String columnNames = br.readLine();
+                    String attackLine;
+                    while (isAttackLine(attackLine = br.readLine(), id)) {
+                        AttackLine al = new AttackLine(attackLine, id);
+
+                        JsonObject obj = Json.createObjectBuilder()
+                                .add("source", al.getSourceIp())
+                                .add("destination", al.getDestinationIp())
+                                .add("increment", al.getIncrement())
+                                .add("timeFrom", al.getTimeFrom())
+                                .add("timeTo", al.getTimeTo())
+                                .build();
+                        arrayBuilder.add(obj);
+                    }
+                }
+            }
+            String parsedJson = arrayBuilder.build().toString();
+            PrintWriter out = new PrintWriter(parsedOutput);
+            out.write(parsedJson);
+            out.flush();
+            //writeToFile
+        } catch (Exception e) {
+            throw new GeneralException("Could not parse attack file!", e);
+        }
+    }
+
+    private boolean isSummarizedAttackLine(String line) {
+        return line.startsWith("Summarized attack");
+    }
+
+    private String getIdFromSummarizedAttackLine(String summarizedAttackLine) {
+        return summarizedAttackLine.substring("Summarized attack: ".length());
+    }
+
+    private boolean isAttackLine(String line, String id) {
+        if (line != null) {
+            return line.trim().startsWith(id);
+        } else {
+            return false;
+        }
+    }
+
 
 }

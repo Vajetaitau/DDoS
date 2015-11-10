@@ -28,3 +28,7 @@
 .additionalChartInput input[type="text"].focus {
   border-bottom: solid 2px #969696;
 }
+
+.ddosAttackList {
+	float: left;
+}

@@ -29,11 +29,9 @@
 					}],
 					packetCounts: ['ddosService', function(ddosService) {
 						var defaults = ddosService.defaults;
-						var timeFrom = new Date(defaults.timeFrom);//Math.round(new Date(defaults.timeFrom).getTime());
-						console.log(timeFrom.toUTCString());
-                        var timeTo = Math.round(new Date(defaults.timeTo).getTime());
+						var timeFrom = new Date(defaults.timeFrom);
+                        var timeTo = new Date(defaults.timeTo);
 						var seriesA = {source: defaults.seriesAIpSource, destination: defaults.seriesAIpDestination, returnSource: true};
-
 						return ddosService.getPacketCount(timeFrom, timeTo, defaults.increment, [seriesA]).then(function (response) {
 							var packetCountsResponse = response.data.list;
 							return packetCountsResponse;

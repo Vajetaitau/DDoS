@@ -1,8 +1,13 @@
 package ufc.persistence.entity;
 
+import org.hibernate.annotations.*;
 import ufc.constants.NamedQueryNames;
 
 import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.Table;
 import java.sql.Timestamp;
 
 @NamedQueries({
@@ -24,6 +29,7 @@ import java.sql.Timestamp;
 
 @Entity
 @Table(name = "packets")
+@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Packet extends Item {
 
     @Column

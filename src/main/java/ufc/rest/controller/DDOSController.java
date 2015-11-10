@@ -101,4 +101,13 @@ public class DDOSController extends AbstractController {
         return response;
     }
 
+    @RequestMapping(value = Urls.PARSE_ATTACK_FILE, method = RequestMethod.POST)
+    @ResponseBody
+    public void parseTruthFile() {
+        try {
+            ddosService.parseAttackFile();;
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

@@ -60,17 +60,21 @@ public class PacketDaoImpl implements PacketDaoCustom {
         String[] seriesLetters = {"a", "b", "c", "d", "e", "f", "g", "h", "i"};
 
         StringBuilder query = new StringBuilder();
+        int minutesMultiplier = 1;
         int multiplier = increment;
         int dividor = 60 / increment;
 
-        query.append("select pp.hour_timestamp + cast(concat(pp.min15_timestamp * ").append(multiplier).append(", 'minutes') as interval) as t");
+        query.append("select pp.hour_timestamp");
+        query.append(" + cast(concat(pp.min_timestamp * ").append(minutesMultiplier).append(", 'minutes') as interval)");
+        query.append(" + cast(concat(pp.second_timestamp * ").append(multiplier).append(", 'seconds') as interval) as t");
         query.append(", pp.series, count(pp.ip), pp.fileName ");
         query.append("from (");
         for (int i = 0; i < packetInfoList.size(); i++) {
             String column = packetInfoList.get(i).isReturnSource() ? "source" : "destination";
 
             query.append("select date_trunc('hour', p.timestamp) AS hour_timestamp");
-            query.append(", cast((extract(minute FROM p.timestamp)) as int) / ").append(multiplier).append(" AS min15_timestamp");
+            query.append(", cast((extract(minute FROM p.timestamp)) as int) / ").append(minutesMultiplier).append(" AS min_timestamp");
+            query.append(", cast((extract(second FROM p.timestamp)) as int) / ").append(multiplier).append(" AS second_timestamp");
             query.append(", p.fileName as fileName, p.").append(column).append(" as ip, cast('").append(seriesLetters[i]).append("' as text) as series ");
             query.append("from packets as p ");
             query.append("where p.source like :source").append(i).append(" ");
