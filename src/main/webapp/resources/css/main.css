@@ -29,6 +29,12 @@
   border-bottom: solid 2px #969696;
 }
 
-.ddosAttackList {
-	float: left;
+.ddos-attack-list {
+	height: 200px;
+	overflow-y: auto;
+}
+
+.ddos-attack-list table tr td {
+	width: 25%;
+	padding: 5px 20px 5px 0px;
 }

@@ -8,7 +8,7 @@ import java.util.Date;
 public class AttackLine {
 
     private static final String fakeIp = "000.000.000.000";
-    private static final long intervalPadding = 2 * 1000;
+    private static final long intervalPadding = 60 * 1000;
     private static final SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss");
     private static final SimpleDateFormat outputDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
     private static final SimpleDateFormat durationDateFormat = new SimpleDateFormat("hh:mm:ss");
@@ -117,5 +117,9 @@ public class AttackLine {
 
     private void setName() {
         this.name = this.columns[4].substring(fakeIp.length());
+    }
+
+    public String getName() {
+        return name;
     }
 }

@@ -64,36 +64,44 @@ public class PacketDaoImpl implements PacketDaoCustom {
         int multiplier = increment;
         int dividor = 60 / increment;
 
-        query.append("select pp.hour_timestamp");
-        query.append(" + cast(concat(pp.min_timestamp * ").append(minutesMultiplier).append(", 'minutes') as interval)");
-        query.append(" + cast(concat(pp.second_timestamp * ").append(multiplier).append(", 'seconds') as interval) as t");
-        query.append(", pp.series, count(pp.ip), pp.fileName ");
+        query.append("select tt.t as t, pp.series, count(pp.ip), pp.fileName ");
         query.append("from (");
         for (int i = 0; i < packetInfoList.size(); i++) {
             String column = packetInfoList.get(i).isReturnSource() ? "source" : "destination";
 
             query.append("select date_trunc('hour', p.timestamp) AS hour_timestamp");
             query.append(", cast((extract(minute FROM p.timestamp)) as int) / ").append(minutesMultiplier).append(" AS min_timestamp");
-            query.append(", cast((extract(second FROM p.timestamp)) as int) / ").append(multiplier).append(" AS second_timestamp");
+            query.append(", cast((extract(second FROM p.timestamp)) as int) / :increment AS second_timestamp");
             query.append(", p.fileName as fileName, p.").append(column).append(" as ip, cast('").append(seriesLetters[i]).append("' as text) as series ");
             query.append("from packets as p ");
             query.append("where p.source like :source").append(i).append(" ");
             query.append("and p.destination like :destination").append(i).append(" ");
-            query.append("and p.timestamp >= '").append(start).append("'");
-            query.append("and p.timestamp <= '").append(end).append("'");
+            query.append("and p.timestamp >= :start ");
+            query.append("and p.timestamp <= :end ");
             if (i != packetInfoList.size() - 1) {
                 query.append("union all ");
             }
         }
         query.append(") as pp ");
-        query.append("group by t, pp.series, pp.fileName ");
-        query.append("order by t asc");
+        query.append("right join ( ");
+        query.append("select generate_series as t ");
+        query.append("from generate_series(");
+        query.append("date_trunc('hour', cast(:start as timestamp))");
+        query.append(", date_trunc('hour', cast(:end as timestamp)) + '1 hour'");
+        query.append(", cast(concat(:increment, 'second') as interval))");
+        query.append(") as tt on pp.hour_timestamp + cast(concat(pp.min_timestamp * 1, 'minutes') as interval) + cast(concat(pp.second_timestamp * :increment, 'seconds') as interval) = tt.t ");
+        query.append("where tt.t >= :start and tt.t <= :end ");
+        query.append("group by tt.t, pp.series, pp.fileName ");
+        query.append("order by tt.t asc");
 
         Query nativeQuery = entityManager.createNativeQuery(query.toString());
         for (int i = 0; i < packetInfoList.size(); i++) {
             nativeQuery.setParameter("source" + i, packetInfoList.get(i).getSource().replace("*", "%"));
             nativeQuery.setParameter("destination" + i, packetInfoList.get(i).getDestination().replace("*", "%"));
         }
+        nativeQuery.setParameter("start", start);
+        nativeQuery.setParameter("end", end);
+        nativeQuery.setParameter("increment", increment);
 
         List<PacketCountInTimeInterval> list = new ArrayList<PacketCountInTimeInterval>();
         for (Object r : nativeQuery.getResultList()) {

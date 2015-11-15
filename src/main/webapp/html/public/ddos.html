@@ -26,18 +26,15 @@
             </canvas>
         </div>
 
-        <div class="ddosAttackList">
-            <ul>
-                <li data-ng-repeat="attack in ddosAttackList">
-                    <div data-ng-click="attackSelected(attack)">
-                        <span>{{attack.source}}</span>
-                        <span>{{attack.destination}}</span>
-                        <span>{{attack.increment}}</span>
-                        <span>{{attack.timeFrom}}</span>
-                        <span>{{attack.timeTo}}</span>
-                    </div>
-                </li>
-            </ul>
+        <div class="chart-size-medium ddos-attack-list">
+            <table>
+                <tr data-ng-repeat="attack in ddosAttackList" data-ng-click="attackSelected(attack)">
+                    <td>{{attack.name}}</td>
+                    <td>{{attack.destination}}</td>
+                    <td>{{attack.timeFrom}}</td>
+                    <td>{{attack.timeTo}}</td>
+                </tr>
+            </table>
         </div>
         <div class="chart-size-medium">
             <div class="additionalChartInput">
@@ -59,7 +56,8 @@
                 </div>
                 <div class="additionalChartInput">
                     <label for="seriesAIpDestination">{{ 'seriesAIpDestination' | translate }}</label>
-                    <input id="seriesAIpDestination" type="text" data-ng-model="seriesAIpDestination" class="long-input">
+                    <input id="seriesAIpDestination" type="text" data-ng-model="seriesAIpDestination"
+                           class="long-input">
                 </div>
             </div>
             <canvas id="line" class="chart chart-line" data-chart-data="second_data"

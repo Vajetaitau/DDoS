@@ -133,6 +133,7 @@ public class DDOSServiceL2Impl implements DDOSServiceL2 {
                         AttackLine al = new AttackLine(attackLine, id);
 
                         JsonObject obj = Json.createObjectBuilder()
+                                .add("name", al.getName())
                                 .add("source", al.getSourceIp())
                                 .add("destination", al.getDestinationIp())
                                 .add("increment", al.getIncrement())
