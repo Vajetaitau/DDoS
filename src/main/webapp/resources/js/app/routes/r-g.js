@@ -37,6 +37,14 @@
 							return packetCountsResponse;
 						});
 					}]
+					, entropy: ['ddosService', function(ddosService) {
+						var defaults = ddosService.defaults;
+						var timeFrom = new Date(defaults.timeFrom);
+						var timeTo = new Date(defaults.timeTo);
+						return ddosService.getEntropy(timeFrom, timeTo, parseInt(defaults.increment), defaults.windowWidth).then(function (response) {
+							return response.data.entropyInformation;
+						});
+					}]
 				}
 			})
 		;

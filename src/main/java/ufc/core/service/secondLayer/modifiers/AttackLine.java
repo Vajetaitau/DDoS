@@ -9,9 +9,8 @@ public class AttackLine {
 
     private static final String fakeIp = "000.000.000.000";
     private static final long intervalPadding = 60 * 1000;
-    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss");
-    private static final SimpleDateFormat outputDateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-    private static final SimpleDateFormat durationDateFormat = new SimpleDateFormat("hh:mm:ss");
+    private static final SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+    private static final SimpleDateFormat outputDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private final String attackLine;
     private final String attackId;
     private String[] columns;

@@ -5,9 +5,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import ufc.constants.Urls;
 import ufc.core.service.firstLayer.DDOSService;
+import ufc.dto.ddos.EntropyInformation;
 import ufc.dto.ddos.GroupedIpDetails;
 import ufc.dto.ddos.PacketCountInTimeInterval;
+import ufc.rest.request.EntropyInTimeIntervalRequest;
 import ufc.rest.request.PacketCountInTimeIntervalsRequest;
+import ufc.rest.response.ddos.DDOSGetEntropyInTimeIntervalResponse;
 import ufc.rest.response.ddos.DDOSGetGroupedSourceIpsResponse;
 import ufc.rest.response.ddos.DDOSGetLineResponse;
 import ufc.rest.response.ddos.DDOSGetPacketCountsInTimeIntervalResponse;
@@ -45,7 +48,26 @@ public class DDOSController extends AbstractController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
 
+    @RequestMapping(value = Urls.PARSE_ATTACK_FILE, method = RequestMethod.POST)
+    @ResponseBody
+    public void parseTruthFile() {
+        try {
+            ddosService.parseAttackFile();;
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @RequestMapping(value = Urls.SCAN_FOR_DDOS_ATTACKS, method = RequestMethod.POST)
+    @ResponseBody
+    public void scanForDDoSAttacks() {
+        try {
+            ddosService.scanForDDoSAttacks();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @RequestMapping(value = Urls.GET_GROUPED_IPS, method = RequestMethod.GET)
@@ -70,24 +92,6 @@ public class DDOSController extends AbstractController {
         return response;
     }
 
-//    @RequestMapping(value = Urls.GET_PACKET_COUNTS_IN_TIME_INTERVAL, method = RequestMethod.GET)
-//    @ResponseBody
-//    public DDOSGetPacketCountsInTimeIntervalResponse getPacketCountsInTimeInterval(
-//            @RequestParam("multiplier") Long multiplier
-//            , @RequestParam("dividor") Long dividor
-//            , @RequestParam("ip") String ipAddress
-//            , @RequestParam("firstResult") Integer firstResult
-//            , @RequestParam("maxResults") Integer maxResults) {
-//        DDOSGetPacketCountsInTimeIntervalResponse response = new DDOSGetPacketCountsInTimeIntervalResponse();
-//        try {
-//            List<PacketCountInTimeInterval> list = ddosService.getPacketCountInTimeIntervals(multiplier, dividor, ipAddress, firstResult, maxResults);
-//            response.setList(list);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return response;
-//    }
-
     @RequestMapping(value = Urls.GET_PACKET_COUNTS_IN_TIME_INTERVAL, method = RequestMethod.POST)
     @ResponseBody
     public DDOSGetPacketCountsInTimeIntervalResponse getPacketCounts(@RequestBody PacketCountInTimeIntervalsRequest request) {
@@ -101,13 +105,17 @@ public class DDOSController extends AbstractController {
         return response;
     }
 
-    @RequestMapping(value = Urls.PARSE_ATTACK_FILE, method = RequestMethod.POST)
+    @RequestMapping(value = Urls.GET_ENTROPY_IN_TIME_INTERVAL, method = RequestMethod.POST)
     @ResponseBody
-    public void parseTruthFile() {
+    public DDOSGetEntropyInTimeIntervalResponse getEntropy(@RequestBody EntropyInTimeIntervalRequest request) {
+        DDOSGetEntropyInTimeIntervalResponse response = new DDOSGetEntropyInTimeIntervalResponse();
         try {
-            ddosService.parseAttackFile();;
-        } catch(Exception e) {
+            EntropyInformation info = ddosService.getEntropy(request.getStart(), request.getEnd(), request.getIncrement(), request.getWindowWidth());
+            response.setEntropyInformation(info);
+
+        } catch (Exception e) {
             e.printStackTrace();
         }
+        return response;
     }
 }

@@ -7,6 +7,7 @@
         <!--<button data-ng-click="uploadFile()" type="button">{{ 'Upload File' | translate }}</button>-->
         <button data-ng-click="parseAttackFile()" type="button">{{ 'Parse Attack File' | translate }}</button>
         <!--<button data-ng-click="getGroupedSourceIps()" type="button">{{ 'Get grouped source ips' | translate }}</button>-->
+        <button data-ng-click="scanForDDoSAttacks()" type="button">{{ 'Scan for DDoS attacks' | translate }}</button>
 
         <div class="chart-size-medium">
             <div class="additionalChartInput">
@@ -21,6 +22,12 @@
                 <label for="amountToReturn">{{ 'Source' | translate }}</label>
                 <input id="source" type="checkbox" data-ng-model="source" class="short-input">
             </div>
+            <div class="exportChartData">
+                <button class="exportDataButton" data-ng-click="exportFirstData()" value="{{ 'Export data' | translate }}">
+                    {{ 'Export data' | translate }}
+                </button>
+                <textarea data-ng-model="exportedFirstData"></textarea>
+            </div>
             <canvas id="bar" class="chart chart-bar"
                     chart-data="first_data" chart-labels="first_labels">
             </canvas>
@@ -29,6 +36,7 @@
         <div class="chart-size-medium ddos-attack-list">
             <table>
                 <tr data-ng-repeat="attack in ddosAttackList" data-ng-click="attackSelected(attack)">
+                    <td>{{$index}}</td>
                     <td>{{attack.name}}</td>
                     <td>{{attack.destination}}</td>
                     <td>{{attack.timeFrom}}</td>
@@ -49,7 +57,7 @@
                 <label for="increment">{{ 'increment' }}</label>
                 <input id="increment" type="text" data-ng-model="increment" class="long-input">
             </div>
-            <div>
+            <div class="additionalChartInput">
                 <div class="additionalChartInput">
                     <label for="seriesAIpSource">{{ 'seriesAIpSource' | translate }}</label>
                     <input id="seriesAIpSource" type="text" data-ng-model="seriesAIpSource" class="long-input">
@@ -60,10 +68,56 @@
                            class="long-input">
                 </div>
             </div>
+            <div class="exportChartData">
+                <button class="exportDataButton" data-ng-click="exportSecondData()" value="{{ 'Export data' | translate }}">
+                    {{ 'Export data' | translate }}
+                </button>
+                <textarea data-ng-model="exportedSecondData"></textarea>
+            </div>
             <canvas id="line" class="chart chart-line" data-chart-data="second_data"
                     data-chart-labels="second_labels" data-chart-legend="true" data-chart-series="series"
                     data-chart-click="onClick">
             </canvas>
         </div>
+        <div class="chart-size-medium">
+            <div class="additionalChartInput">
+                <label for="windowWidth">{{ 'windowWidth' }}</label>
+                <input id="windowWidth" type="text" data-ng-model="windowWidth" class="long-input">
+            </div>
+            <div class="exportChartData">
+                <button class="exportDataButton" data-ng-click="exportEntropyData()" value="{{ 'Export data' | translate }}">
+                    {{ 'Export data' | translate }}
+                </button>
+                <textarea data-ng-model="exportedEntropyData"></textarea>
+            </div>
+            <canvas id="entropy" class="chart chart-line" data-chart-data="entropy_data"
+                    data-chart-labels="entropy_labels" data-chart-legend="true" data-chart-series="entropy_series"
+                    data-chart-click="onClick">
+            </canvas>
+        </div>
+        <!--<div class="chart-size-medium">
+            <div class="exportChartData">
+                <button class="exportDataButton" data-ng-click="exportAverageEntropyData()" value="{{ 'Export data' | translate }}">
+                    {{ 'Export data' | translate }}
+                </button>
+                <textarea data-ng-model="exportedAverageEntropyData"></textarea>
+            </div>
+            <canvas id="entropyAverage" class="chart chart-line" data-chart-data="average_data"
+                    data-chart-labels="average_labels" data-chart-legend="true" data-chart-series="average_series"
+                    data-chart-click="onClick">
+            </canvas>
+        </div>
+        <div class="chart-size-medium">
+            <div class="exportChartData">
+                <button class="exportDataButton" data-ng-click="exportDifferenceData()" value="{{ 'Export data' | translate }}">
+                    {{ 'Export data' | translate }}
+                </button>
+                <textarea data-ng-model="exportedDifferenceData"></textarea>
+            </div>
+            <canvas id="differenceFromAverage" class="chart chart-line" data-chart-data="difference_data"
+                    data-chart-labels="difference_labels" data-chart-legend="true" data-chart-series="difference_series"
+                    data-chart-click="onClick">
+            </canvas>
+        </div>-->
     </form>
 </div>

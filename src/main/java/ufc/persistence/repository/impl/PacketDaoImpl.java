@@ -3,6 +3,7 @@ package ufc.persistence.repository.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import ufc.constants.NamedQueryNames;
 import ufc.dto.ddos.GroupedIpDetails;
+import ufc.dto.ddos.PacketCount;
 import ufc.dto.ddos.PacketCountInTimeInterval;
 import ufc.dto.ddos.PacketInfo;
 import ufc.persistence.repository.PacketDaoCustom;
@@ -10,6 +11,7 @@ import ufc.rest.request.PacketCountInTimeIntervalsRequest;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -33,23 +35,6 @@ public class PacketDaoImpl implements PacketDaoCustom {
         Query query = entityManager.createNamedQuery(NamedQueryNames.GET_GROUPED_DESTINATION_IPS);
         query.setParameter("threshold", Long.valueOf(threshold));
         query.setMaxResults(limit);
-        return query.getResultList();
-    }
-
-    @Override
-    public List<PacketCountInTimeInterval> findPacketCountInTimeIntervals(Long multiplier, Long dividor, String sourceIp, Integer firstResult, Integer maxResults) {
-        Query query = entityManager.createNativeQuery(
-                "select cast((p.timestamp * cast(:multiplier as bigint)) as bigint) / :dividor as time, p.source, count(p.source) " +
-                        "from packets as p " +
-                        "where p.source like :source " +
-                        "group by time, p.source " +
-                        "order by time"
-        );
-        query.setParameter("multiplier", multiplier);
-        query.setParameter("dividor", dividor);
-        query.setParameter("source", sourceIp);
-        query.setFirstResult(firstResult);
-        query.setMaxResults(maxResults);
         return query.getResultList();
     }
 
@@ -114,4 +99,139 @@ public class PacketDaoImpl implements PacketDaoCustom {
         return list;
     }
 
+    @Override
+    public List<PacketCount> findPacketCounts(Timestamp start, Timestamp end, Integer increment) {
+        StringBuilder query = new StringBuilder();
+
+        query.append("select tt.interval_start as t, destination as d, count(*) as c, sum(count(*)) over (partition by tt.interval_start order by tt.interval_start asc) ");
+        query.append("from packets ");
+        query.append("right join ( ");
+            query.append("select generate_series as interval_start, generate_series + '1 second' as interval_end ");
+            query.append("from generate_series(cast(:start as timestamp), :end, cast(concat('1', 'second') as interval))");
+        query.append(") as tt on packets.timestamp >= tt.interval_start and packets.timestamp <= tt.interval_end ");
+        query.append("where filename = '0' ");
+        query.append("group by tt.interval_start, destination ");
+        query.append("order by tt.interval_start asc");
+
+        Query nativeQuery = entityManager.createNativeQuery(query.toString());
+        nativeQuery.setParameter("start", start);
+        nativeQuery.setParameter("end", end);
+
+        List<PacketCount> list  = new ArrayList<PacketCount>();
+        for (Object r: nativeQuery.getResultList()) {
+            Object[] resultRow = (Object[]) r;
+            Timestamp intervalStart = (Timestamp) resultRow[0];
+            String destination = (String) resultRow[1];
+            long count = ((BigInteger) resultRow[2]).longValue();
+            long sum = ((BigDecimal) resultRow[3]).longValue();
+            PacketCount packetCount = new PacketCount(null, destination, intervalStart, count, sum);
+            list.add(packetCount);
+        }
+        return list;
+    }
+
+    @Override
+    public List<PacketCount> findPacketCountsBySourceInTimeDomain(Timestamp start, Timestamp end, Integer increment) {
+        StringBuilder query = new StringBuilder();
+
+        query.append("select tt.interval_start as t, source as s, count(*) as c, sum(count(*)) over (partition by tt.interval_start order by tt.interval_start asc) ");
+        query.append("from packets ");
+        query.append("right join ( ");
+        query.append("select generate_series as interval_start, generate_series + '1 second' as interval_end ");
+        query.append("from generate_series(cast(:start as timestamp), :end, cast(concat('1', 'second') as interval))");
+        query.append(") as tt on packets.timestamp >= tt.interval_start and packets.timestamp <= tt.interval_end ");
+        query.append("where filename = '0' ");
+        query.append("group by tt.interval_start, source ");
+        query.append("order by tt.interval_start asc");
+
+        Query nativeQuery = entityManager.createNativeQuery(query.toString());
+        nativeQuery.setParameter("start", start);
+        nativeQuery.setParameter("end", end);
+
+        List<PacketCount> list  = new ArrayList<PacketCount>();
+        for (Object r: nativeQuery.getResultList()) {
+            Object[] resultRow = (Object[]) r;
+            Timestamp intervalStart = (Timestamp) resultRow[0];
+            String source = (String) resultRow[1];
+            long count = ((BigInteger) resultRow[2]).longValue();
+            long sum = ((BigDecimal) resultRow[3]).longValue();
+            PacketCount packetCount = new PacketCount(source, null, intervalStart, count, sum);
+            list.add(packetCount);
+        }
+        return list;
+    }
+
+    @Override
+    public List<PacketCount> findPacketCountsByDestinationInCountDomain(Timestamp timeStart, Timestamp timeEnd, long start, long end, Integer increment) {
+        StringBuilder query = new StringBuilder();
+
+        query.append("select num, d, count(*), sum(count(*)) over (partition by num order by num asc) ");
+        query.append("from ( ");
+        query.append("select p.number / :increment as num, p.destination as d ");
+        query.append("from packets as p ");
+        query.append("where p.number >= :start ");
+        query.append("and p.number < :end ");
+        query.append("and filename = '0' ");
+        query.append("and p.timestamp >= :timeStart ");
+        query.append("and p.timestamp <= :timeEnd ");
+        query.append(") as x ");
+        query.append("group by num, d ");
+        query.append("order by num asc");
+
+        Query nativeQuery = entityManager.createNativeQuery(query.toString());
+        nativeQuery.setParameter("start", start);
+        nativeQuery.setParameter("end", end);
+        nativeQuery.setParameter("increment", increment);
+        nativeQuery.setParameter("timeStart", timeStart);
+        nativeQuery.setParameter("timeEnd", timeEnd);
+
+        List<PacketCount> list  = new ArrayList<PacketCount>();
+        for (Object r: nativeQuery.getResultList()) {
+            Object[] resultRow = (Object[]) r;
+            long numberInCountDomain = ((Integer) resultRow[0]).longValue();
+            String destination = (String) resultRow[1];
+            long count = ((BigInteger) resultRow[2]).longValue();
+            long sum = ((BigDecimal) resultRow[3]).longValue();
+            PacketCount packetCount = new PacketCount(null, destination, numberInCountDomain, count, sum);
+            list.add(packetCount);
+        }
+        return list;
+    }
+
+    @Override
+    public List<PacketCount> findPacketCountsBySourceInCountDomain(Timestamp timeStart, Timestamp timeEnd, long start, long end, Integer increment) {
+        StringBuilder query = new StringBuilder();
+
+        query.append("select num, d, count(*), sum(count(*)) over (partition by num order by num asc) ");
+        query.append("from ( ");
+        query.append("select p.number / :increment as num, p.source as d ");
+        query.append("from packets as p ");
+        query.append("where p.number >= :start ");
+        query.append("and p.number < :end ");
+        query.append("and filename = '0' ");
+        query.append("and p.timestamp >= :timeStart ");
+        query.append("and p.timestamp <= :timeEnd ");
+        query.append(") as x ");
+        query.append("group by num, d ");
+        query.append("order by num asc");
+
+        Query nativeQuery = entityManager.createNativeQuery(query.toString());
+        nativeQuery.setParameter("start", start);
+        nativeQuery.setParameter("end", end);
+        nativeQuery.setParameter("increment", increment);
+        nativeQuery.setParameter("timeStart", timeStart);
+        nativeQuery.setParameter("timeEnd", timeEnd);
+
+        List<PacketCount> list  = new ArrayList<PacketCount>();
+        for (Object r: nativeQuery.getResultList()) {
+            Object[] resultRow = (Object[]) r;
+            long numberInCountDomain = ((Integer) resultRow[0]).longValue();
+            String source = (String) resultRow[1];
+            long count = ((BigInteger) resultRow[2]).longValue();
+            long sum = ((BigDecimal) resultRow[3]).longValue();
+            PacketCount packetCount = new PacketCount(source, null, numberInCountDomain, count, sum);
+            list.add(packetCount);
+        }
+        return list;
+    }
 }

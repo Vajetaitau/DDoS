@@ -1,6 +1,6 @@
 .chart-size-medium {
 	padding: 50px;
-    width: 50%;
+    width: 60%;
     height: 33%;
     margin: 0 auto;
 }
@@ -17,6 +17,12 @@
 .additionalChartInput {
 	display: inline-block;
 	padding: 0 20px 0 0;
+}
+.exportChartData {
+	width: 100%;
+}
+.exportChartData textarea {
+	margin: 50px 0px 0px 0px;
 }
 .additionalChartInput input[type="text"] {
 	padding: 5px 5px 5px 5px;

@@ -5,10 +5,7 @@ import org.springframework.stereotype.Service;
 import ufc.core.exceptions.GeneralException;
 import ufc.core.service.firstLayer.DDOSService;
 import ufc.core.service.secondLayer.DDOSServiceL2;
-import ufc.dto.ddos.GroupedIpDetails;
-import ufc.dto.ddos.PacketCountInTimeInterval;
-import ufc.dto.ddos.PacketInfo;
-import ufc.rest.request.PacketCountInTimeIntervalsRequest;
+import ufc.dto.ddos.*;
 
 import javax.transaction.Transactional;
 import java.io.BufferedReader;
@@ -61,11 +58,6 @@ public class DDOSServiceImpl implements DDOSService {
     }
 
     @Override
-    public List<PacketCountInTimeInterval> getPacketCountInTimeIntervals(Long multiplier, Long dividor, String sourceIp, Integer firstResult, Integer maxResults) throws GeneralException {
-        return ddosServiceL2.getPacketCountInTimeIntervals(multiplier, dividor, sourceIp, firstResult, maxResults);
-    }
-
-    @Override
     public List<PacketCountInTimeInterval> findPacketCounts(Timestamp start, Timestamp end, Integer increment, List<PacketInfo> packetInfoList) throws GeneralException {
         return ddosServiceL2.findPacketCounts(start, end, increment, packetInfoList);
     }
@@ -73,5 +65,15 @@ public class DDOSServiceImpl implements DDOSService {
     @Override
     public void parseAttackFile() throws GeneralException {
         ddosServiceL2.parseAttackFile();
+    }
+
+    @Override
+    public EntropyInformation getEntropy(Timestamp start, Timestamp end, Integer increment, Integer windowWidth) {
+        return ddosServiceL2.getEntropy(start, end, increment, windowWidth);
+    }
+
+    @Override
+    public void scanForDDoSAttacks() {
+        ddosServiceL2.scanForDDoSAttacks();
     }
 }

@@ -1,9 +1,7 @@
 package ufc.core.service.secondLayer;
 
 import ufc.core.exceptions.GeneralException;
-import ufc.dto.ddos.GroupedIpDetails;
-import ufc.dto.ddos.PacketCountInTimeInterval;
-import ufc.dto.ddos.PacketInfo;
+import ufc.dto.ddos.*;
 import ufc.rest.request.PacketCountInTimeIntervalsRequest;
 
 import java.sql.Timestamp;
@@ -14,11 +12,17 @@ import java.util.List;
  */
 public interface DDOSServiceL2 {
 
-    public void uploadFileToDatabase() throws GeneralException;
-    public List<GroupedIpDetails> getGroupedSourceIpDetails(Integer threshold, Integer limit, String order) throws GeneralException;
-    public List<GroupedIpDetails> getGroupedDestinationIpDetails(Integer threshold, Integer limit, String order) throws GeneralException;
-    public List<PacketCountInTimeInterval> getPacketCountInTimeIntervals(Long multiplier, Long dividor, String sourceIp, Integer firstResult, Integer maxResults) throws GeneralException;
-    public List<PacketCountInTimeInterval> findPacketCounts(Timestamp start, Timestamp end, Integer increment, List<PacketInfo> packetInfoList) throws GeneralException;
-    public void parseAttackFile() throws GeneralException;
+    void uploadFileToDatabase() throws GeneralException;
 
+    List<GroupedIpDetails> getGroupedSourceIpDetails(Integer threshold, Integer limit, String order) throws GeneralException;
+
+    List<GroupedIpDetails> getGroupedDestinationIpDetails(Integer threshold, Integer limit, String order) throws GeneralException;
+
+    List<PacketCountInTimeInterval> findPacketCounts(Timestamp start, Timestamp end, Integer increment, List<PacketInfo> packetInfoList) throws GeneralException;
+
+    void parseAttackFile() throws GeneralException;
+
+    EntropyInformation getEntropy(Timestamp start, Timestamp end, Integer increment, Integer widowWidth);
+
+    void scanForDDoSAttacks();
 }
