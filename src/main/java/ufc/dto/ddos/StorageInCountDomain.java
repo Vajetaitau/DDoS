@@ -7,92 +7,98 @@ import java.util.Map;
 
 public abstract class StorageInCountDomain {
 
-        private Map<String, PacketCount> packetCountsGroupedByIp;
-        private List<PacketCount> currentTimePacketCounts;
-        private List<List<PacketCount>> listOfListOfPacketCounts;
-        private Long currentNumber;
+    private Map<String, PacketCount> packetCountsGroupedByIp;
+    private List<PacketCount> currentTimePacketCounts;
+    private List<List<PacketCount>> listOfListOfPacketCounts;
+    private Long currentNumber;
 
-        private List<Long> listOfFrom;
-        private Long from;
-        private int windowWidth;
+    private List<Long> listOfFrom;
+    private Long from;
+    private int windowWidth;
 
-        private List<EntropyInTimeInterval> listOfEntropies;
-        private EntropyInTimeInterval minimumEntropy;
-        private Double notNormalizedCurrentNumberEntropy;
-        private Double normalizedCurrentNumberEntropy;
+    private List<EntropyInTimeInterval> listOfEntropies;
+    private EntropyInTimeInterval minimumEntropy;
+    private Double notNormalizedCurrentNumberEntropy;
+    private Double normalizedCurrentNumberEntropy;
+
+    private Double addToAttackListIfLowerThan;
+    private List<EntropyInTimeInterval> attackList;
 //    private List<AverageInTimeInterval> listOfAverages;
 //    private List<DifferenceFromAverageInTimeInterval> listOfDifferences;
 
 
-        public StorageInCountDomain() {
-            this.packetCountsGroupedByIp = new HashMap<String, PacketCount>();
-            this.currentTimePacketCounts = new ArrayList<PacketCount>();
-            this.notNormalizedCurrentNumberEntropy = 0D;
-            this.normalizedCurrentNumberEntropy = 0D;
-            this.listOfListOfPacketCounts = new ArrayList<List<PacketCount>>();
-            this.currentNumber = 0L;
+    public StorageInCountDomain() {
+        this.packetCountsGroupedByIp = new HashMap<String, PacketCount>();
+        this.currentTimePacketCounts = new ArrayList<PacketCount>();
+        this.notNormalizedCurrentNumberEntropy = 0D;
+        this.normalizedCurrentNumberEntropy = 0D;
+        this.listOfListOfPacketCounts = new ArrayList<List<PacketCount>>();
+        this.currentNumber = 0L;
 
-            this.listOfFrom = new ArrayList<Long>();
-            this.from = 0L;
-            this.windowWidth = 50;
+        this.listOfFrom = new ArrayList<Long>();
+        this.from = 0L;
+        this.windowWidth = 50;
 
-            this.listOfEntropies = new ArrayList<EntropyInTimeInterval>();
+        this.listOfEntropies = new ArrayList<EntropyInTimeInterval>();
 
-            this.minimumEntropy = new EntropyInTimeInterval();
-            this.minimumEntropy.setEntropy(1D);
-        }
+        this.minimumEntropy = new EntropyInTimeInterval();
+        this.minimumEntropy.setEntropy(1D);
 
-        abstract String getIp(PacketCount pc);
+        this.addToAttackListIfLowerThan = 0D;
+        this.attackList = new ArrayList<EntropyInTimeInterval>();
+    }
 
-        private StorageInCountDomain decreasePacketCounts(List<PacketCount> packetCountsToDecrease) {
-            for (PacketCount pc: packetCountsToDecrease) {
-                String ip = getIp(pc);
+    abstract String getIp(PacketCount pc);
 
-                PacketCount countByDestination = packetCountsGroupedByIp.get(ip);
-                if (countByDestination == null) {
-                    continue;
-                }
-                countByDestination.setCount(countByDestination.getCount() - pc.getCount());
+    private StorageInCountDomain decreasePacketCounts(List<PacketCount> packetCountsToDecrease) {
+        for (PacketCount pc : packetCountsToDecrease) {
+            String ip = getIp(pc);
 
-                if (countByDestination.getCount() == 0) {
-                    packetCountsGroupedByIp.remove(ip);
-                }
+            PacketCount countByDestination = packetCountsGroupedByIp.get(ip);
+            if (countByDestination == null) {
+                continue;
             }
+            countByDestination.setCount(countByDestination.getCount() - pc.getCount());
+
+            if (countByDestination.getCount() == 0) {
+                packetCountsGroupedByIp.remove(ip);
+            }
+        }
+        return this;
+    }
+
+    private StorageInCountDomain increasePacketCounts(List<PacketCount> packetCountsToIncrease) {
+        for (PacketCount pc : packetCountsToIncrease) {
+            String ip = getIp(pc);
+
+            PacketCount countByDestination = packetCountsGroupedByIp.get(ip);
+            if (countByDestination == null) {
+                countByDestination = new PacketCount(null, ip, pc.getTime(), 0, 0);
+                packetCountsGroupedByIp.put(ip, countByDestination);
+            }
+            countByDestination.setCount(countByDestination.getCount() + pc.getCount());
+        }
+        return this;
+    }
+
+    public StorageInCountDomain addCurrentIntervalToStorage() {
+        if (currentTimePacketCounts.isEmpty()) {
             return this;
         }
 
-        private StorageInCountDomain increasePacketCounts(List<PacketCount> packetCountsToIncrease) {
-            for (PacketCount pc: packetCountsToIncrease) {
-                String ip = getIp(pc);
+        this.increasePacketCounts(currentTimePacketCounts);
 
-                PacketCount countByDestination = packetCountsGroupedByIp.get(ip);
-                if (countByDestination == null) {
-                    countByDestination = new PacketCount(null, ip, pc.getTime(), 0, 0);
-                    packetCountsGroupedByIp.put(ip, countByDestination);
-                }
-                countByDestination.setCount(countByDestination.getCount() + pc.getCount());
-            }
-            return this;
+        listOfListOfPacketCounts.add(currentTimePacketCounts);
+        if (listOfListOfPacketCounts.size() > windowWidth) {
+            this.decreasePacketCounts(listOfListOfPacketCounts.remove(0));
         }
 
-        public StorageInCountDomain addCurrentIntervalToStorage() {
-            if (currentTimePacketCounts.isEmpty()) {
-                return this;
-            }
+        addNewFrom(currentTimePacketCounts.get(0).getFrom());
+        countEntropy();
+        addCurrentEntropyToEntropyList();
 
-            this.increasePacketCounts(currentTimePacketCounts);
-
-            listOfListOfPacketCounts.add(currentTimePacketCounts);
-            if (listOfListOfPacketCounts.size() > windowWidth) {
-                this.decreasePacketCounts(listOfListOfPacketCounts.remove(0));
-            }
-
-            addNewFrom(currentTimePacketCounts.get(0).getFrom());
-            countEntropy();
-            addCurrentEntropyToEntropyList();
-
-            return this;
-        }
+        return this;
+    }
 
 //    private static int binlog( int bits ) // returns 0 for bits=0
 //    {
@@ -104,66 +110,70 @@ public abstract class StorageInCountDomain {
 //        return log + ( bits >>> 1 );
 //    }
 
-        public StorageInCountDomain cleanCurrentInterval() {
-            this.currentTimePacketCounts = new ArrayList<PacketCount>();
-            this.notNormalizedCurrentNumberEntropy = 0D;
-            this.normalizedCurrentNumberEntropy = 0D;
-            return this;
+    public StorageInCountDomain cleanCurrentInterval() {
+        this.currentTimePacketCounts = new ArrayList<PacketCount>();
+        this.notNormalizedCurrentNumberEntropy = 0D;
+        this.normalizedCurrentNumberEntropy = 0D;
+        return this;
+    }
+
+    public boolean numberExceedsCurrentNumber(long number) {
+        return number > this.currentNumber;
+    }
+
+    private StorageInCountDomain updateCurrentNumber(long number) {
+        this.currentNumber = number;
+        return this;
+    }
+
+    private void addNewFrom(Long from) {
+        this.from += from;
+
+        this.listOfFrom.add(from);
+        if (this.listOfFrom.size() > this.windowWidth) {
+            this.from -= this.listOfFrom.remove(0);
+        }
+    }
+
+    public void setWindowWidth(int windowWidth) {
+        this.windowWidth = windowWidth;
+    }
+
+    public void addNewPacketCount(PacketCount packetCount) {
+        currentTimePacketCounts.add(packetCount);
+        updateCurrentNumber(packetCount.getNumberInCountDomain());
+    }
+
+    public List<EntropyInTimeInterval> getListOfEntropies() {
+        return listOfEntropies;
+    }
+
+    private void countEntropy() {
+        for (String ip : packetCountsGroupedByIp.keySet()) {
+            Long count = packetCountsGroupedByIp.get(ip).getCount();
+
+            Double probability = ((double) count) / from;
+            notNormalizedCurrentNumberEntropy -= probability * (Math.log(probability) / Math.log(2));
+        }
+        Double maximumEntropy = -Math.log(1D / from) / Math.log(2);
+        normalizedCurrentNumberEntropy = notNormalizedCurrentNumberEntropy / maximumEntropy;
+    }
+
+    private void addCurrentEntropyToEntropyList() {
+        EntropyInTimeInterval e = new EntropyInTimeInterval();
+        e.setNumberInPacketCountDomain(currentNumber);
+        e.setEntropy(normalizedCurrentNumberEntropy);
+
+        listOfEntropies.add(e);
+
+        if (e.getEntropy() < minimumEntropy.getEntropy()) {
+            minimumEntropy = e;
         }
 
-        public boolean numberExceedsCurrentNumber(long number) {
-            return number > this.currentNumber;
+        if (normalizedCurrentNumberEntropy < addToAttackListIfLowerThan) {
+            attackList.add(e);
         }
-
-        private StorageInCountDomain updateCurrentNumber(long number) {
-            this.currentNumber = number;
-            return this;
-        }
-
-        private void addNewFrom(Long from) {
-            this.from += from;
-
-            this.listOfFrom.add(from);
-            if (this.listOfFrom.size() > this.windowWidth) {
-                this.from -= this.listOfFrom.remove(0);
-            }
-        }
-
-        public void setWindowWidth(int windowWidth) {
-            this.windowWidth = windowWidth;
-        }
-
-        public void addNewPacketCount(PacketCount packetCount) {
-            currentTimePacketCounts.add(packetCount);
-            updateCurrentNumber(packetCount.getNumberInCountDomain());
-        }
-
-        public List<EntropyInTimeInterval> getListOfEntropies() {
-            return listOfEntropies;
-        }
-
-        private void countEntropy() {
-            for (String ip: packetCountsGroupedByIp.keySet()) {
-                Long count = packetCountsGroupedByIp.get(ip).getCount();
-
-                Double probability = ((double) count) / from;
-                notNormalizedCurrentNumberEntropy -= probability * (Math.log(probability) / Math.log(2));
-            }
-            Double maximumEntropy = -Math.log(1D / from) / Math.log(2);
-            normalizedCurrentNumberEntropy = notNormalizedCurrentNumberEntropy / maximumEntropy;
-        }
-
-        private void addCurrentEntropyToEntropyList() {
-            EntropyInTimeInterval e = new EntropyInTimeInterval();
-            e.setNumberInPacketCountDomain(currentNumber);
-            e.setEntropy(normalizedCurrentNumberEntropy);
-
-            listOfEntropies.add(e);
-
-            if (e.getEntropy() < minimumEntropy.getEntropy()) {
-                minimumEntropy = e;
-            }
-        }
+    }
 
 //    public StorageInTimeDomain countAvarage() {
 //        listOfAverages = new ArrayList<AverageInTimeInterval>();
@@ -224,12 +234,20 @@ public abstract class StorageInCountDomain {
 //        return listOfDifferences;
 //    }
 
-        public EntropyInTimeInterval getMinimumEntropy() {
-            return minimumEntropy;
-        }
+    public EntropyInTimeInterval getMinimumEntropy() {
+        return minimumEntropy;
+    }
 
-        public void setMinimumEntropy(EntropyInTimeInterval minimumEntropy) {
-            this.minimumEntropy = minimumEntropy;
-        }
+    public void setMinimumEntropy(EntropyInTimeInterval minimumEntropy) {
+        this.minimumEntropy = minimumEntropy;
+    }
+
+    public void setAddToAttackListIfLowerThan(Double addToAttackListIfLowerThan) {
+        this.addToAttackListIfLowerThan = addToAttackListIfLowerThan;
+    }
+
+    public List<EntropyInTimeInterval> getAttackList() {
+        return attackList;
+    }
 
 }

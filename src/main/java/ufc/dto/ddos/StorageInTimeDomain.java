@@ -21,7 +21,11 @@ public abstract class StorageInTimeDomain {
     private EntropyInTimeInterval minimumEntropy;
     private Double notNormalizedCurrentTimeEntropy;
     private Double normalizedCurrentTimeEntropy;
-//    private List<AverageInTimeInterval> listOfAverages;
+
+    private Double addToAttackListIfLowerThan;
+    private List<EntropyInTimeInterval> attackList;
+
+    //    private List<AverageInTimeInterval> listOfAverages;
 //    private List<DifferenceFromAverageInTimeInterval> listOfDifferences;
 
 
@@ -39,6 +43,9 @@ public abstract class StorageInTimeDomain {
 
         this.minimumEntropy = new EntropyInTimeInterval();
         this.minimumEntropy.setEntropy(1D);
+
+        this.addToAttackListIfLowerThan = 0D;
+        this.attackList = new ArrayList<EntropyInTimeInterval>();
     }
 
     abstract String getIp(PacketCount pc);
@@ -162,6 +169,10 @@ public abstract class StorageInTimeDomain {
         if (e.getEntropy() < minimumEntropy.getEntropy()) {
             minimumEntropy = e;
         }
+
+        if (normalizedCurrentTimeEntropy < addToAttackListIfLowerThan) {
+            attackList.add(e);
+        }
     }
 
 //    public StorageInTimeDomain countAvarage() {
@@ -229,5 +240,14 @@ public abstract class StorageInTimeDomain {
 
     public void setMinimumEntropy(EntropyInTimeInterval minimumEntropy) {
         this.minimumEntropy = minimumEntropy;
+    }
+
+
+    public void setAddToAttackListIfLowerThan(Double addToAttackListIfLowerThan) {
+        this.addToAttackListIfLowerThan = addToAttackListIfLowerThan;
+    }
+
+    public List<EntropyInTimeInterval> getAttackList() {
+        return attackList;
     }
 }

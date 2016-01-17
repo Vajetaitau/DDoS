@@ -24,4 +24,6 @@ public interface PacketDaoCustom {
     List<PacketCount> findPacketCountsByDestinationInCountDomain(Timestamp timeStart, Timestamp timeEnd, long start, long end, Integer increment);
 
     List<PacketCount> findPacketCountsBySourceInCountDomain(Timestamp timeStart, Timestamp timeEnd, long start, long end, Integer increment);
+
+    Timestamp findMatchingTime(Timestamp timeStart, Timestamp timeEnd, String filename, long numberToMatch);
 }

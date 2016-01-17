@@ -190,17 +190,37 @@ public class DDOSServiceL2Impl implements DDOSServiceL2 {
 
     @Override
     public void scanForDDoSAttacks() {
-        //        final String startDateString = "1999-04-05 08:00:00";
-        //        final String endDateString = "1999-04-06 00:00:00";
 
 
+//        printMinimumEntropyInTimeDomain(10);
+//        printMinimumEntropyInTimeDomain(15);
+//        printMinimumEntropyInTimeDomain(20);
+//        printMinimumEntropyInTimeDomain(25);
+//        printMinimumEntropyInTimeDomain(35);
+//        printMinimumEntropyInTimeDomain(40);
+//        printMinimumEntropyInTimeDomain(50);
+//        printMinimumEntropyInTimeDomain(60);
+//        printMinimumEntropyInTimeDomain(70);
+//        printMinimumEntropyInTimeDomain(80);
+//        printMinimumEntropyInTimeDomain(90);
+
+//        printMinimumEntropyInCountDomain(10);
+//        printMinimumEntropyInCountDomain(15);
+//        printMinimumEntropyInCountDomain(20);
+//        printMinimumEntropyInCountDomain(25);
+//        printMinimumEntropyInCountDomain(35);
+//        printMinimumEntropyInCountDomain(45);
 //        printMinimumEntropyInCountDomain(30);
 //        printMinimumEntropyInCountDomain(40);
 //        printMinimumEntropyInCountDomain(50);
 //        printMinimumEntropyInCountDomain(60);
-        printMinimumEntropyInCountDomain(70);
-        printMinimumEntropyInCountDomain(80);
-        printMinimumEntropyInCountDomain(90);
+//        printMinimumEntropyInCountDomain(70);
+//        printMinimumEntropyInCountDomain(80);
+//        printMinimumEntropyInCountDomain(90);
+
+        //findWhereEntropyIsLowerThan(40, 0.1813D, 0.17776D);
+
+        findWhereEntropyIsLowerThanInCountDomain(45, 0.18156D, 0.17805D);
     }
 
     private void printMinimumEntropyInTimeDomain(int windowWidth) {
@@ -211,8 +231,10 @@ public class DDOSServiceL2Impl implements DDOSServiceL2 {
         final String startDateString = "1999-03-01 08:00:00";
         final String endDateString = "1999-03-02 08:00:00";
 
-        final long intervalPadding = 60 * 1000;
+        final long intervalPadding = 2 * 60 * 1000;
+        final Integer amountOfSecondsInInterval = 20;
         final long oneSecond = 1 * 1000;
+
 
         try {
             PrintWriter out = new PrintWriter(String.format(pathToMinimumEntropyFile, "timeDomain", windowWidth));
@@ -233,10 +255,10 @@ public class DDOSServiceL2Impl implements DDOSServiceL2 {
                 Date endIntervalDate = new Date(currentDate.getTime() + intervalPadding);
 
                 List<PacketCount> packetCountsByDestinationInTimeDomain = packetDao.findPacketCounts(
-                        new Timestamp(startIntervalDate.getTime()), new Timestamp(endIntervalDate.getTime()), 1
+                        new Timestamp(startIntervalDate.getTime()), new Timestamp(endIntervalDate.getTime()), amountOfSecondsInInterval
                 );
                 List<PacketCount> packetCountsBySourceInTimeDomain = packetDao.findPacketCountsBySourceInTimeDomain(
-                        new Timestamp(startIntervalDate.getTime()), new Timestamp(endIntervalDate.getTime()), 1
+                        new Timestamp(startIntervalDate.getTime()), new Timestamp(endIntervalDate.getTime()), amountOfSecondsInInterval
                 );
 
                 if (packetCountsByDestinationInTimeDomain != null && packetCountsByDestinationInTimeDomain.size() > 0) {
@@ -378,6 +400,204 @@ public class DDOSServiceL2Impl implements DDOSServiceL2 {
 
             out.flush();
             out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void findWhereEntropyIsLowerThan(int windowWidth, Double lowerThanByDest, Double lowerThanBySource) {
+        System.out.println("Scanning started!");
+
+        final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        final String startDateString = "1999-04-05 08:00:00";
+        final String endDateString = "1999-04-06 06:00:00";
+
+        final long intervalPadding = 2 * 60 * 1000;
+        final Integer amountOfSecondsInInterval = 20;
+        final long oneSecond = 1 * 1000;
+
+
+        try {
+            final String pathToAtacks = "C:\\Users\\K\\Desktop\\TrainingData\\attacks-%s-%d-%s.csv";
+
+            PrintWriter out1 = new PrintWriter(String.format(pathToAtacks, "timeDomain", windowWidth, "destination"));
+            PrintWriter out2 = new PrintWriter(String.format(pathToAtacks, "timeDomain", windowWidth, "source"));
+
+            Date startDate = dateFormat.parse(startDateString);
+            Date endDate = dateFormat.parse(endDateString);
+
+            Date currentDate = startDate;
+
+            StorageByDestinationInTimeDomain storageByDestinationInTimeDomain = new StorageByDestinationInTimeDomain();
+            storageByDestinationInTimeDomain.setWindowWidth(windowWidth);
+            storageByDestinationInTimeDomain.setAddToAttackListIfLowerThan(lowerThanByDest);
+
+            StorageBySourceInTimeDomain storageBySourceInTimeDomain = new StorageBySourceInTimeDomain();
+            storageBySourceInTimeDomain.setWindowWidth(windowWidth);
+            storageBySourceInTimeDomain.setAddToAttackListIfLowerThan(lowerThanBySource);
+
+            while (currentDate.getTime() < endDate.getTime()) {
+                Date startIntervalDate = new Date(currentDate.getTime() + oneSecond);
+                Date endIntervalDate = new Date(currentDate.getTime() + intervalPadding);
+
+                List<PacketCount> packetCountsByDestinationInTimeDomain = packetDao.findPacketCounts(
+                        new Timestamp(startIntervalDate.getTime()), new Timestamp(endIntervalDate.getTime()), amountOfSecondsInInterval
+                );
+                List<PacketCount> packetCountsBySourceInTimeDomain = packetDao.findPacketCountsBySourceInTimeDomain(
+                        new Timestamp(startIntervalDate.getTime()), new Timestamp(endIntervalDate.getTime()), amountOfSecondsInInterval
+                );
+
+                if (packetCountsByDestinationInTimeDomain != null && packetCountsByDestinationInTimeDomain.size() > 0) {
+                    for (int i = 0; i < packetCountsByDestinationInTimeDomain.size(); i++) {
+                        PacketCount pc = packetCountsByDestinationInTimeDomain.get(i);
+
+                        if (storageByDestinationInTimeDomain.timeExceedsCurrentTime(pc.getTime())) {
+                            storageByDestinationInTimeDomain
+                                    .addCurrentIntervalToStorage()
+                                    .cleanCurrentInterval();
+                        }
+
+                        storageByDestinationInTimeDomain.addNewPacketCount(pc);
+                    }
+                }
+
+                if (packetCountsBySourceInTimeDomain != null && packetCountsBySourceInTimeDomain.size() > 0) {
+                    for (int i = 0; i < packetCountsBySourceInTimeDomain.size(); i++) {
+                        PacketCount pc = packetCountsBySourceInTimeDomain.get(i);
+
+                        if (storageBySourceInTimeDomain.timeExceedsCurrentTime(pc.getTime())) {
+                            storageBySourceInTimeDomain
+                                    .addCurrentIntervalToStorage()
+                                    .cleanCurrentInterval();
+                        }
+
+                        storageBySourceInTimeDomain.addNewPacketCount(pc);
+                    }
+                }
+
+                currentDate = endIntervalDate;
+                System.out.println(dateFormat.format(currentDate));
+            }
+
+            for (EntropyInTimeInterval e: storageByDestinationInTimeDomain.getAttackList()) {
+                out1.write(
+                        dateFormat.format(e.getTime()) + "," + e.getEntropy() + "\r\n"
+                );
+            }
+
+            for (EntropyInTimeInterval e: storageBySourceInTimeDomain.getAttackList()) {
+                out2.write(
+                        dateFormat.format(e.getTime()) + "," + e.getEntropy() + "\r\n"
+                );
+            }
+
+            out1.flush();
+            out1.close();
+
+            out2.flush();
+            out2.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void findWhereEntropyIsLowerThanInCountDomain(int windowWidth, Double lowerThanByDest, Double lowerThanBySource) {
+        System.out.println("Scanning started!");
+
+        final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        final String startDateString = "1999-04-05 08:00:00";
+        final String endDateString = "1999-04-06 06:00:00";
+
+        final Integer packetCountInOneWindow = 500;
+        final long intervalPadding = 5 * packetCountInOneWindow;
+
+
+        try {
+            final String pathToAtacks = "C:\\Users\\K\\Desktop\\TrainingData\\attacks-%s-%d-%s.csv";
+
+            PrintWriter out1 = new PrintWriter(String.format(pathToAtacks, "countDomain", windowWidth, "destination"));
+            PrintWriter out2 = new PrintWriter(String.format(pathToAtacks, "countDomain", windowWidth, "source"));
+
+            Timestamp startTime = new Timestamp(dateFormat.parse(startDateString).getTime());
+            Timestamp endTime = new Timestamp(dateFormat.parse(endDateString).getTime());
+
+            long startNumber = 0;
+            long endNumber = 1500000;
+
+            long currentNumber = startNumber;
+
+            StorageByDestinationInCountDomain storageByDestinationInCountDomain = new StorageByDestinationInCountDomain();
+            storageByDestinationInCountDomain.setWindowWidth(windowWidth);
+            storageByDestinationInCountDomain.setAddToAttackListIfLowerThan(lowerThanByDest);
+
+            StorageBySourceInCountDomain storageBySourceInCountDomain = new StorageBySourceInCountDomain();
+            storageBySourceInCountDomain.setWindowWidth(windowWidth);
+            storageBySourceInCountDomain.setAddToAttackListIfLowerThan(lowerThanBySource);
+
+            while (currentNumber < endNumber) {
+                long startIntervalNumber = currentNumber;
+                long endIntervalNumber = currentNumber + intervalPadding;
+
+                List<PacketCount> packetCountsByDestinationInCountDomain = packetDao.findPacketCountsByDestinationInCountDomain(
+                        startTime, endTime, startIntervalNumber, endIntervalNumber, packetCountInOneWindow
+                );
+                List<PacketCount> packetCountsBySourceInCountDomain = packetDao.findPacketCountsBySourceInCountDomain(
+                        startTime, endTime, startIntervalNumber, endIntervalNumber, packetCountInOneWindow
+                );
+
+                if (packetCountsByDestinationInCountDomain != null && packetCountsByDestinationInCountDomain.size() > 0) {
+                    for (int i = 0; i < packetCountsByDestinationInCountDomain.size(); i++) {
+                        PacketCount pc = packetCountsByDestinationInCountDomain.get(i);
+
+                        if (storageByDestinationInCountDomain.numberExceedsCurrentNumber(pc.getNumberInCountDomain())) {
+                            storageByDestinationInCountDomain
+                                    .addCurrentIntervalToStorage()
+                                    .cleanCurrentInterval();
+                        }
+
+                        storageByDestinationInCountDomain.addNewPacketCount(pc);
+                    }
+                }
+
+                if (packetCountsBySourceInCountDomain != null && packetCountsBySourceInCountDomain.size() > 0) {
+                    for (int i = 0; i < packetCountsBySourceInCountDomain.size(); i++) {
+                        PacketCount pc = packetCountsBySourceInCountDomain.get(i);
+
+                        if (storageBySourceInCountDomain.numberExceedsCurrentNumber(pc.getNumberInCountDomain())) {
+                            storageBySourceInCountDomain
+                                    .addCurrentIntervalToStorage()
+                                    .cleanCurrentInterval();
+                        }
+
+                        storageBySourceInCountDomain.addNewPacketCount(pc);
+                    }
+                }
+
+                currentNumber = endIntervalNumber;
+                System.out.println(currentNumber);
+            }
+
+            for (EntropyInTimeInterval e : storageByDestinationInCountDomain.getAttackList()) {
+                Timestamp time = packetDao.findMatchingTime(startTime, endTime, "0", e.getNumberInPacketCountDomain());
+                out1.write(
+                        dateFormat.format(time) + "," + e.getEntropy() + "\r\n"
+                );
+            }
+
+            for (EntropyInTimeInterval e : storageBySourceInCountDomain.getAttackList()) {
+                Timestamp time = packetDao.findMatchingTime(startTime, endTime, "0", e.getNumberInPacketCountDomain());
+                out2.write(
+                        dateFormat.format(time) + "," + e.getEntropy() + "\r\n"
+                );
+            }
+
+            out1.flush();
+            out1.close();
+
+            out2.flush();
+            out2.close();
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -106,8 +106,8 @@ public class PacketDaoImpl implements PacketDaoCustom {
         query.append("select tt.interval_start as t, destination as d, count(*) as c, sum(count(*)) over (partition by tt.interval_start order by tt.interval_start asc) ");
         query.append("from packets ");
         query.append("right join ( ");
-            query.append("select generate_series as interval_start, generate_series + '1 second' as interval_end ");
-            query.append("from generate_series(cast(:start as timestamp), :end, cast(concat('1', 'second') as interval))");
+            query.append("select generate_series as interval_start, generate_series + cast(concat(:increment, 'second') as interval) as interval_end ");
+            query.append("from generate_series(cast(:start as timestamp), :end, cast(concat(:increment, 'second') as interval))");
         query.append(") as tt on packets.timestamp >= tt.interval_start and packets.timestamp <= tt.interval_end ");
         query.append("where filename = '0' ");
         query.append("group by tt.interval_start, destination ");
@@ -116,6 +116,7 @@ public class PacketDaoImpl implements PacketDaoCustom {
         Query nativeQuery = entityManager.createNativeQuery(query.toString());
         nativeQuery.setParameter("start", start);
         nativeQuery.setParameter("end", end);
+        nativeQuery.setParameter("increment", increment);
 
         List<PacketCount> list  = new ArrayList<PacketCount>();
         for (Object r: nativeQuery.getResultList()) {
@@ -137,8 +138,8 @@ public class PacketDaoImpl implements PacketDaoCustom {
         query.append("select tt.interval_start as t, source as s, count(*) as c, sum(count(*)) over (partition by tt.interval_start order by tt.interval_start asc) ");
         query.append("from packets ");
         query.append("right join ( ");
-        query.append("select generate_series as interval_start, generate_series + '1 second' as interval_end ");
-        query.append("from generate_series(cast(:start as timestamp), :end, cast(concat('1', 'second') as interval))");
+            query.append("select generate_series as interval_start, generate_series + cast(concat(:increment, 'second') as interval) as interval_end ");
+            query.append("from generate_series(cast(:start as timestamp), :end, cast(concat(:increment, 'second') as interval))");
         query.append(") as tt on packets.timestamp >= tt.interval_start and packets.timestamp <= tt.interval_end ");
         query.append("where filename = '0' ");
         query.append("group by tt.interval_start, source ");
@@ -147,6 +148,7 @@ public class PacketDaoImpl implements PacketDaoCustom {
         Query nativeQuery = entityManager.createNativeQuery(query.toString());
         nativeQuery.setParameter("start", start);
         nativeQuery.setParameter("end", end);
+        nativeQuery.setParameter("increment", increment);
 
         List<PacketCount> list  = new ArrayList<PacketCount>();
         for (Object r: nativeQuery.getResultList()) {
@@ -233,5 +235,27 @@ public class PacketDaoImpl implements PacketDaoCustom {
             list.add(packetCount);
         }
         return list;
+    }
+
+    @Override
+    public Timestamp findMatchingTime(Timestamp timeStart, Timestamp timeEnd, String filename, long numberToMatch) {
+        StringBuilder query = new StringBuilder();
+
+        query.append("select timestamp ");
+        query.append("from packets ");
+        query.append("where timestamp > :start ");
+        query.append("and timestamp < :end ");
+        query.append("and filename = :filename ");
+        query.append("and number / 1000 = :numberToMatch ");
+        query.append("order by timestamp asc ");
+        query.append("limit 1");
+
+        Query nativeQuery = entityManager.createNativeQuery(query.toString());
+        nativeQuery.setParameter("start", timeStart);
+        nativeQuery.setParameter("end", timeEnd);
+        nativeQuery.setParameter("filename", filename);
+        nativeQuery.setParameter("numberToMatch", numberToMatch);
+
+        return (Timestamp) nativeQuery.getSingleResult();
     }
 }
